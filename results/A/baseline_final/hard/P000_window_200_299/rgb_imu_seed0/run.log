@@ -334,5 +334,9 @@ mnInitialFrameId = 84
 32 Frames set to lost
 Shutdown
 
+Saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/hard/P000_window_200_299/rgb_imu_seed0/trajectory_orb_raw.tum ...
+There are 1 maps in the atlas
+  Map 0 has 0 KFs
+
 Saving keyframe trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/hard/P000_window_200_299/rgb_imu_seed0/keyframe_trajectory.tum ...
 frames=100 valid_poses=24 mode=rgb_imu seed=0

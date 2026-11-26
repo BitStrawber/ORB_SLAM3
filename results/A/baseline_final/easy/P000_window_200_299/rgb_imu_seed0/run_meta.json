@@ -17,11 +17,12 @@
     "LD_LIBRARY_PATH": "/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb/lib:/media/SSD0/XCX/ORB_SLAM3_A/install/pangolin/lib",
     "TMPDIR": "/media/SSD0/XCX/ORB_SLAM3_A/tmp"
   },
-  "finished_utc": "2026-11-26T05:10:09.692868+00:00",
-  "git_commit": "8a3a0af3c2c787f31820d6c1600f176d85ddf4ef",
+  "finished_utc": "2026-11-26T05:54:57.736208+00:00",
+  "git_commit": "7eeb5c42c874693923ac3f655bfe342d740d45f7",
   "mode": "rgb_imu",
   "return_code": 0,
   "seed": 0,
-  "started_utc": "2026-11-26T05:09:52.895305+00:00",
-  "status": "ok"
+  "started_utc": "2026-11-26T05:54:40.795553+00:00",
+  "status": "ok",
+  "trajectory_source": "per_frame_fallback_degenerate_official"
 }

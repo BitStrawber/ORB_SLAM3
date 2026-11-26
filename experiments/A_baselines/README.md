@@ -8,7 +8,7 @@
 - Hard trajectory: `Data_hard/P000`
 - Evaluation window: frames 200-299, 20.0-29.9 seconds at 10 Hz
 - Modes: `rgb`, `rgb_imu`, `rgbd_imu`
-- Seed used for the handoff run: `0`
+- Seeds: `0`, `1`, `2`
 - Camera: pinhole, 640x640, `fx=fy=320`, `cx=cy=320`, zero distortion
 - IMU: 100 Hz, aligned with `lcam_front`
 
@@ -69,7 +69,11 @@ python A_ROOT/experiments/A_baselines/run_baseline.py \
 ```
 
 The runner is headless, uses `bUseViewer=false`, paces input at the timestamp rate,
-and writes `trajectory_est.tum`, `tracking.csv`, `run.log`, and `run_meta.json`.
+and writes `trajectory_est.tum`, `trajectory_camera.tum`, `tracking.csv`, `run.log`,
+and `run_meta.json`. `trajectory_est.tum` is expressed in the TartanAir body/NED frame.
+Inertial modes use ORB-SLAM3's optimized largest-map trajectory when it contains at
+least 10 points; otherwise they use the dense per-frame trajectory and record that
+fallback in `run_meta.json`.
 
 ## Evaluate
 

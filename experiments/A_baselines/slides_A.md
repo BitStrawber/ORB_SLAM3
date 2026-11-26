@@ -21,19 +21,24 @@
 
 Use `results/A/figures/baseline_summary.png` and these values:
 
-- Easy RGB: 0.028 m ATE, 98% coverage.
-- Easy RGB+IMU: 1.421 m ATE, 88.3% coverage.
-- Easy RGB-D+IMU: 0.639 m ATE, 98% coverage.
-- Hard RGB: 0.965 m mean map-segment ATE, 38.3% coverage.
-- Hard RGB+IMU: 4.763 m ATE, 24% coverage.
-- Hard RGB-D+IMU: 5.241 m ATE, 61% coverage.
+- Easy RGB: 0.020 m ATE, 98% coverage.
+- Easy RGB+IMU: 0.789 m mean / 0.575 m median ATE, 87.3% coverage.
+- Easy RGB-D+IMU: 0.067 m ATE, 98% coverage.
+- Hard RGB: 1.257 m mean / 0.263 m median ATE, 35% coverage.
+- Hard RGB+IMU: 4.718 m ATE, 25.7% coverage.
+- Hard RGB-D+IMU: 5.259 m ATE, 61% coverage.
 
 All values are mean over three seeds.
 
 ## Slide: Interpretation
 
 - The easy fused RGB-D run is stable and accurate.
-- RGB+IMU remains the weakest easy mode due to monocular inertial scale initialization.
+- RGB+IMU has a good median but one scale-initialization outlier.
 - Hard scenarios cause substantial loss in all modes.
 - RGB-D+IMU provides the best hard coverage.
 - Results are reported without deleting failed frames or failed seeds.
+
+P002 holdout validation confirms easy RGB+IMU and RGB-D+IMU results:
+
+- Easy RGB+IMU: 0.060 m ATE, 99% coverage.
+- Easy RGB-D+IMU: 0.024 m ATE, 98% coverage.

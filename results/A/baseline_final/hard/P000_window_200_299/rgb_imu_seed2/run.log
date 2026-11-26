@@ -78,7 +78,6 @@ mnInitialFrameId = 2
 4 Frames set to lost
 First KF:4; Map init KF:2
 New Map created with 301 points
-virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
 Fail to track local map!
 IMU is not or recently initialized. Reseting active map...
 SYSTEM-> Reseting active map in monocular case
@@ -188,26 +187,9 @@ LM: Reset free the mutex
 LM: Active map reset, Done!!!
 mnFirstFrameId = 31
 mnInitialFrameId = 29
-18 Frames set to lost
-First KF:20; Map init KF:18
-New Map created with 251 points
-virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
-virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
-virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
-Fail to track local map!
-IMU is not or recently initialized. Reseting active map...
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 34
-mnInitialFrameId = 32
 21 Frames set to lost
-First KF:22; Map init KF:20
-New Map created with 113 points
+First KF:21; Map init KF:18
+New Map created with 148 points
 TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
 SYSTEM-> Reseting active map in monocular case
@@ -217,11 +199,11 @@ LM: Reseting current map in Local Mapping...
 LM: End reseting Local Mapping...
 LM: Reset free the mutex
 LM: Active map reset, Done!!!
-mnFirstFrameId = 38
-mnInitialFrameId = 36
+mnFirstFrameId = 37
+mnInitialFrameId = 35
 22 Frames set to lost
-First KF:24; Map init KF:22
-New Map created with 281 points
+First KF:23; Map init KF:21
+New Map created with 216 points
 TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
 SYSTEM-> Reseting active map in monocular case
@@ -231,11 +213,11 @@ LM: Reseting current map in Local Mapping...
 LM: End reseting Local Mapping...
 LM: Reset free the mutex
 LM: Active map reset, Done!!!
-mnFirstFrameId = 41
-mnInitialFrameId = 39
+mnFirstFrameId = 40
+mnInitialFrameId = 38
 23 Frames set to lost
-First KF:26; Map init KF:24
-New Map created with 133 points
+First KF:25; Map init KF:23
+New Map created with 198 points
 TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
 SYSTEM-> Reseting active map in monocular case
@@ -245,10 +227,10 @@ LM: Reseting current map in Local Mapping...
 LM: End reseting Local Mapping...
 LM: Reset free the mutex
 LM: Active map reset, Done!!!
-mnFirstFrameId = 45
-mnInitialFrameId = 42
+mnFirstFrameId = 49
+mnInitialFrameId = 41
 24 Frames set to lost
-First KF:28; Map init KF:26
+First KF:27; Map init KF:25
 New Map created with 133 points
 TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
@@ -260,9 +242,9 @@ LM: End reseting Local Mapping...
 LM: Reset free the mutex
 LM: Active map reset, Done!!!
 mnFirstFrameId = 52
-mnInitialFrameId = 46
+mnInitialFrameId = 50
 25 Frames set to lost
-First KF:30; Map init KF:28
+First KF:29; Map init KF:27
 New Map created with 212 points
 TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
@@ -276,7 +258,7 @@ LM: Active map reset, Done!!!
 mnFirstFrameId = 72
 mnInitialFrameId = 53
 26 Frames set to lost
-First KF:32; Map init KF:30
+First KF:31; Map init KF:29
 New Map created with 84 points
 TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
@@ -290,22 +272,8 @@ LM: Active map reset, Done!!!
 mnFirstFrameId = 75
 mnInitialFrameId = 73
 27 Frames set to lost
-First KF:34; Map init KF:32
+First KF:33; Map init KF:31
 New Map created with 178 points
-TRACK_REF_KF: Less than 15 matches!!
-Fail to track local map!
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 79
-mnInitialFrameId = 76
-28 Frames set to lost
-First KF:36; Map init KF:34
-New Map created with 187 points
 Fail to track local map!
 IMU is not or recently initialized. Reseting active map...
 SYSTEM-> Reseting active map in monocular case
@@ -315,10 +283,24 @@ LM: Reseting current map in Local Mapping...
 LM: End reseting Local Mapping...
 LM: Reset free the mutex
 LM: Active map reset, Done!!!
-mnFirstFrameId = 82
-mnInitialFrameId = 80
+mnFirstFrameId = 79
+mnInitialFrameId = 76
+30 Frames set to lost
+First KF:35; Map init KF:33
+New Map created with 229 points
+TRACK_REF_KF: Less than 15 matches!!
+Fail to track local map!
+SYSTEM-> Reseting active map in monocular case
+LM: Active map reset recieved
+LM: Active map reset, waiting...
+LM: Reseting current map in Local Mapping...
+LM: End reseting Local Mapping...
+LM: Reset free the mutex
+LM: Active map reset, Done!!!
+mnFirstFrameId = 83
+mnInitialFrameId = 81
 31 Frames set to lost
-First KF:38; Map init KF:36
+First KF:37; Map init KF:35
 New Map created with 216 points
 TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
@@ -334,5 +316,9 @@ mnInitialFrameId = 84
 32 Frames set to lost
 Shutdown
 
+Saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/hard/P000_window_200_299/rgb_imu_seed2/trajectory_orb_raw.tum ...
+There are 1 maps in the atlas
+  Map 0 has 0 KFs
+
 Saving keyframe trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/hard/P000_window_200_299/rgb_imu_seed2/keyframe_trajectory.tum ...
-frames=100 valid_poses=24 mode=rgb_imu seed=2
+frames=100 valid_poses=25 mode=rgb_imu seed=2

@@ -46,5 +46,11 @@ First KF:0; Map init KF:0
 New Map created with 316 points
 Shutdown
 
+Saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_seed2/trajectory_orb_raw.tum ...
+There are 1 maps in the atlas
+  Map 0 has 34 KFs
+
+End of saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_seed2/trajectory_orb_raw.tum ...
+
 Saving keyframe trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_seed2/keyframe_trajectory.tum ...
 frames=100 valid_poses=98 mode=rgb seed=2

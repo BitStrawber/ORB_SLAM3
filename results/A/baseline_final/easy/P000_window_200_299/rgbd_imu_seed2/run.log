@@ -58,5 +58,11 @@ start VIBA 1
 end VIBA 1
 Shutdown
 
+Saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgbd_imu_seed2/trajectory_orb_raw.tum ...
+There are 1 maps in the atlas
+  Map 0 has 38 KFs
+
+End of saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgbd_imu_seed2/trajectory_orb_raw.tum ...
+
 Saving keyframe trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgbd_imu_seed2/keyframe_trajectory.tum ...
 frames=100 valid_poses=98 mode=rgbd_imu seed=2

@@ -1,0 +1,7 @@
+dataset,environment,trajectory,window,difficulty,mode,seed,status,ate_rmse_m,orientation_ape_rmse_deg,valid_pose_ratio,lost_events
+TartanAirV2,OldTownSummer,P002,20.0-29.9s,easy,rgb,0,ok,0.2932669680189542,20.869103952930285,0.99,0
+TartanAirV2,OldTownSummer,P002,20.0-29.9s,easy,rgb_imu,0,ok,0.06015784525970212,0.38735088430251774,0.99,0
+TartanAirV2,OldTownSummer,P002,20.0-29.9s,easy,rgbd_imu,0,ok,0.024108598424273157,0.32147579611816174,0.98,0
+TartanAirV2,OldTownSummer,P002,20.0-29.9s,hard,rgb,0,ok,8.63282073200071,95.5631727576923,0.24,5
+TartanAirV2,OldTownSummer,P002,20.0-29.9s,hard,rgb_imu,0,ok,9.272624052398857,45.55675783348574,0.47,22
+TartanAirV2,OldTownSummer,P002,20.0-29.9s,hard,rgbd_imu,0,ok,9.3579870046162,45.13698076472413,0.64,17

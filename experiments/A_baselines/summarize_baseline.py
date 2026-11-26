@@ -128,6 +128,15 @@ def main() -> None:
                 summary[f"{field}_std"] = (
                     float(values.std(ddof=1)) if len(values) > 1 else 0.0
                 )
+                summary[f"{field}_median"] = (
+                    float(np.median(values)) if len(values) else None
+                )
+                summary[f"{field}_min"] = (
+                    float(values.min()) if len(values) else None
+                )
+                summary[f"{field}_max"] = (
+                    float(values.max()) if len(values) else None
+                )
             aggregate.append(summary)
     aggregate_json = result_root / "baseline_aggregate.json"
     aggregate_json.write_text(
@@ -138,6 +147,43 @@ def main() -> None:
         writer = csv.DictWriter(handle, fieldnames=list(aggregate[0]))
         writer.writeheader()
         writer.writerows(aggregate)
+
+    validation_rows = []
+    validation_root = result_root / "validation/P002"
+    if validation_root.exists():
+        for difficulty in DIFFICULTIES:
+            for mode in MODES:
+                metrics_path = validation_root / difficulty / mode / "metrics.json"
+                if not metrics_path.exists():
+                    continue
+                metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+                validation_rows.append(
+                    {
+                        "dataset": "TartanAirV2",
+                        "environment": "OldTownSummer",
+                        "trajectory": "P002",
+                        "window": "20.0-29.9s",
+                        "difficulty": difficulty,
+                        "mode": mode,
+                        "seed": 0,
+                        "status": metrics.get("status"),
+                        "ate_rmse_m": metrics.get("ate_rmse"),
+                        "orientation_ape_rmse_deg": metrics.get(
+                            "orientation_ape_rmse_deg"
+                        ),
+                        "valid_pose_ratio": metrics.get("valid_pose_ratio"),
+                        "lost_events": metrics.get("lost_events"),
+                    }
+                )
+    validation_csv = result_root / "validation_metrics.csv"
+    with validation_csv.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(validation_rows[0]))
+        writer.writeheader()
+        writer.writerows(validation_rows)
+    (result_root / "validation_metrics.json").write_text(
+        json.dumps(validation_rows, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
     colors = ["#4C78A8", "#F58518", "#54A24B"]
@@ -190,6 +236,7 @@ def main() -> None:
     print(f"Wrote {result_root / 'baseline_metrics.json'}")
     print(f"Wrote {aggregate_csv}")
     print(f"Wrote {aggregate_json}")
+    print(f"Wrote {validation_csv}")
     print(f"Wrote {figure_root / 'baseline_summary.png'}")
 
 

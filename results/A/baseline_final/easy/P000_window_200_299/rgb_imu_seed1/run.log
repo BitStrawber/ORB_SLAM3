@@ -50,6 +50,7 @@ There are 1 cameras in the atlas
 Camera 0 is pinhole
 First KF:0; Map init KF:0
 New Map created with 316 points
+scale too small
 Fail to track local map!
 IMU is not or recently initialized. Reseting active map...
 SYSTEM-> Reseting active map in monocular case
@@ -61,12 +62,30 @@ LM: Reset free the mutex
 LM: Active map reset, Done!!!
 mnFirstFrameId = 2
 mnInitialFrameId = 0
-18 Frames set to lost
-First KF:7; Map init KF:0
-New Map created with 257 points
-start VIBA 1
-end VIBA 1
+26 Frames set to lost
+First KF:10; Map init KF:0
+New Map created with 324 points
+Fail to track local map!
+IMU is not or recently initialized. Reseting active map...
+SYSTEM-> Reseting active map in monocular case
+LM: Active map reset recieved
+LM: Active map reset, waiting...
+LM: Reseting current map in Local Mapping...
+LM: End reseting Local Mapping...
+LM: Reset free the mutex
+LM: Active map reset, Done!!!
+mnFirstFrameId = 30
+mnInitialFrameId = 27
+44 Frames set to lost
+First KF:17; Map init KF:10
+New Map created with 328 points
 Shutdown
 
+Saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_imu_seed1/trajectory_orb_raw.tum ...
+There are 1 maps in the atlas
+  Map 0 has 20 KFs
+
+End of saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_imu_seed1/trajectory_orb_raw.tum ...
+
 Saving keyframe trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_imu_seed1/keyframe_trajectory.tum ...
-frames=100 valid_poses=94 mode=rgb_imu seed=1
+frames=100 valid_poses=92 mode=rgb_imu seed=1

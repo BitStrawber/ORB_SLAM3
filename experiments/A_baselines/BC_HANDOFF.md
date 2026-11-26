@@ -50,6 +50,10 @@ to `run_baseline.py`.
 - `rgb_imu`: SE(3)
 - `rgbd_imu`: SE(3)
 - Report ATE, RPE, valid-pose coverage, lost events, mean latency, and P95 latency.
+- Report orientation APE because RPE rotation is invariant to some global frame offsets.
+- Use `trajectory_est.tum`, which is in the TartanAir body/NED frame.
+- Inspect `run_meta.json.trajectory_source`; a dense per-frame fallback means the
+  optimized map had too few points for reliable trajectory alignment.
 - Failed initialization must be preserved as a failed run.
 
 ## Minimum handoff smoke test

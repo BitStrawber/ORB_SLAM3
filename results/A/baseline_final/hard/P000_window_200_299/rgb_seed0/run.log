@@ -44,24 +44,6 @@ There are 1 cameras in the atlas
 Camera 0 is pinhole
 First KF:0; Map init KF:0
 New Map created with 407 points
-virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
-virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
-virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
-virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
-TRACK_REF_KF: Less than 15 matches!!
-Fail to track local map!
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 1
-mnInitialFrameId = 0
-21 Frames set to lost
-First KF:9; Map init KF:0
-New Map created with 232 points
 Fail to track local map!
 Relocalized!!
 TRACK_REF_KF: Less than 15 matches!!
@@ -99,78 +81,41 @@ Fail to track local map!
 Fail to track local map!
 Creation of new map with id: 1
 Stored map with ID: 0
-Creation of new map with last KF id: 24
-First KF:24; Map init KF:24
-New Map created with 94 points
+Creation of new map with last KF id: 12
+First KF:12; Map init KF:12
+New Map created with 135 points
+virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
+virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
+virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
 TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 24
-mnInitialFrameId = 75
-6 Frames set to lost
-First KF:26; Map init KF:24
-New Map created with 150 points
-TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 24
-mnInitialFrameId = 77
-5 Frames set to lost
-First KF:28; Map init KF:26
-New Map created with 186 points
-TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 24
-mnInitialFrameId = 80
-3 Frames set to lost
-First KF:30; Map init KF:28
-New Map created with 207 points
-TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 24
-mnInitialFrameId = 83
-1 Frames set to lost
-First KF:32; Map init KF:30
-New Map created with 132 points
-TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 24
-mnInitialFrameId = 89
-0 Frames set to lost
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
+Fail to track local map!
 Shutdown
 
+Saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/hard/P000_window_200_299/rgb_seed0/trajectory_orb_raw.tum ...
+There are 2 maps in the atlas
+  Map 0 has 12 KFs
+  Map 1 has 12 KFs
+
+End of saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/hard/P000_window_200_299/rgb_seed0/trajectory_orb_raw.tum ...
+
 Saving keyframe trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/hard/P000_window_200_299/rgb_seed0/keyframe_trajectory.tum ...
-frames=100 valid_poses=44 mode=rgb seed=0
+frames=100 valid_poses=38 mode=rgb seed=0

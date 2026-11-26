@@ -46,8 +46,12 @@ First KF:0; Map init KF:0
 New Map created with 407 points
 Fail to track local map!
 Relocalized!!
-Fail to track local map!
-Relocalized!!
+virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
+virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
+virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
+virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
+virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
+virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
 TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
 Fail to track local map!
@@ -83,51 +87,9 @@ Fail to track local map!
 Fail to track local map!
 Creation of new map with id: 1
 Stored map with ID: 0
-Creation of new map with last KF id: 13
-First KF:13; Map init KF:13
-New Map created with 65 points
-TRACK_REF_KF: Less than 15 matches!!
-Fail to track local map!
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 1
-mnInitialFrameId = 60
-0 Frames set to lost
-First KF:15; Map init KF:13
-New Map created with 108 points
-TRACK_REF_KF: Less than 15 matches!!
-Fail to track local map!
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 1
-mnInitialFrameId = 62
-0 Frames set to lost
-First KF:17; Map init KF:15
-New Map created with 78 points
-TRACK_REF_KF: Less than 15 matches!!
-Fail to track local map!
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 1
-mnInitialFrameId = 66
-0 Frames set to lost
-First KF:19; Map init KF:17
-New Map created with 173 points
+Creation of new map with last KF id: 17
+First KF:17; Map init KF:17
+New Map created with 194 points
 TRACK_REF_KF: Less than 15 matches!!
 Fail to track local map!
 SYSTEM-> Reseting active map in monocular case
@@ -140,10 +102,22 @@ LM: Active map reset, Done!!!
 mnFirstFrameId = 1
 mnInitialFrameId = 69
 0 Frames set to lost
+First KF:19; Map init KF:17
+New Map created with 104 points
+TRACK_REF_KF: Less than 15 matches!!
+Fail to track local map!
+SYSTEM-> Reseting active map in monocular case
+LM: Active map reset recieved
+LM: Active map reset, waiting...
+LM: Reseting current map in Local Mapping...
+LM: End reseting Local Mapping...
+LM: Reset free the mutex
+LM: Active map reset, Done!!!
+mnFirstFrameId = 1
+mnInitialFrameId = 75
+0 Frames set to lost
 First KF:21; Map init KF:19
-New Map created with 222 points
-Fail to track local map!
-Fail to track local map!
+New Map created with 185 points
 Fail to track local map!
 Fail to track local map!
 Fail to track local map!
@@ -163,5 +137,12 @@ Fail to track local map!
 Fail to track local map!
 Shutdown
 
+Saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/hard/P000_window_200_299/rgb_seed2/trajectory_orb_raw.tum ...
+There are 2 maps in the atlas
+  Map 0 has 17 KFs
+  Map 1 has 2 KFs
+
+End of saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/hard/P000_window_200_299/rgb_seed2/trajectory_orb_raw.tum ...
+
 Saving keyframe trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/hard/P000_window_200_299/rgb_seed2/keyframe_trajectory.tum ...
-frames=100 valid_poses=33 mode=rgb seed=2
+frames=100 valid_poses=38 mode=rgb seed=2
