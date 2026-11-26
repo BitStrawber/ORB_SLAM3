@@ -26,20 +26,27 @@ def git_head(repo: Path) -> str:
 
 def materialize_orb_trajectory(
     output: Path, settings: Path, mode: str
-) -> None:
+) -> str:
     raw_path = output / "trajectory_orb_raw.tum"
     if not raw_path.exists() or raw_path.stat().st_size == 0:
-        return
+        return "per_frame_fallback_empty_official"
     rows = np.loadtxt(raw_path, ndmin=2)
     if rows.size == 0:
-        return
+        return "per_frame_fallback_empty_official"
     # The official EuRoC save path is the authoritative optimized trajectory
     # for inertial modes. For monocular RGB, keep the per-frame trajectory
     # already transformed to the TartanAir body frame by run_tartanair.
     if mode == "rgb":
-        return
+        return "per_frame_body"
     if np.median(rows[:, 0]) > 1e6:
         rows[:, 0] /= 1e9
+    if rows.shape[0] < 3:
+        return "per_frame_fallback_degenerate_official"
+    covariance_rank = np.linalg.matrix_rank(
+        np.cov(rows[:, 1:4], rowvar=False)
+    )
+    if covariance_rank < 2:
+        return "per_frame_fallback_degenerate_official"
 
     np.savetxt(
         output / "trajectory_est.tum",
@@ -47,6 +54,7 @@ def materialize_orb_trajectory(
         fmt="%.17g",
         delimiter=" ",
     )
+    return "orb_save_largest_map"
 
 
 def main() -> int:
@@ -121,7 +129,9 @@ def main() -> int:
     meta["return_code"] = return_code
     meta["finished_utc"] = datetime.now(timezone.utc).isoformat()
     meta["status"] = "ok" if return_code == 0 else "failed"
-    materialize_orb_trajectory(output, args.settings.resolve(), args.mode)
+    meta["trajectory_source"] = materialize_orb_trajectory(
+        output, args.settings.resolve(), args.mode
+    )
     (output / "run_meta.json").write_text(
         json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
