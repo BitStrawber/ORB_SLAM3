@@ -133,6 +133,7 @@ MKL 固定为单线程。
 
 ### 页面要点
 
+- 素材：`presentation/A/figures/data/easy_three_cases_bars.png`
 - Easy P000：RGB+IMU 条件 ATE 最低，但覆盖不足
 - Easy P002：两种融合模式均优于 RGB
 - 融合收益存在场景依赖
@@ -181,6 +182,7 @@ Depth 可以提供尺度和近距几何，但空洞、噪声和无效像素会�
 
 ### 页面要点
 
+- 素材：`presentation/A/figures/data/hard_three_cases_bars.png`
 - Hard 全窗口覆盖率：RGB 50.3%，RGB+IMU 28.0%，RGB-D+IMU 60.0%
 - Hard 全窗 ATE/RPE 为 N/A
 - 公共单地图窗口和逐 map 分段提供补充数值
@@ -222,6 +224,9 @@ seed 覆盖率为 0。RGB+IMU 为 1.415 米，RGB-D+IMU 为 1.262 米，两者�
 
 第二，困难场景必须同时报告覆盖率、失跟事件和有效 seed 数。不能只展示成功片段的条件
 ATE，也不能把不同地图直接拼成一条轨迹。
+
+当前柱状图使用优化关键帧主轨迹，用于说明基线运行现象。正式给出跨模式精度排名前，还应
+使用官方最大地图全帧轨迹和共同有效时间区间复算一次。
 
 后续分支可以直接复用统一 manifest、IMU 输入、tracking 日志、map_id 和 TUM 轨迹接口。
 B、C 替换视觉或深度输入，D 和 E 使用 tracking 状态开展预测与降级策略实验。

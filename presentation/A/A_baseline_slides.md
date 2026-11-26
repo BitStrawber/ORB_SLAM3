@@ -19,18 +19,18 @@
 
 ## Slide: Easy results
 
-Use `results/A/figures/baseline_summary.png` and
-`results/A/figures/validation_summary.png`.
+Use `presentation/A/figures/data/easy_three_cases_bars.png`.
 
 - Easy P000: RGB+IMU has the lowest conditional ATE but lower coverage.
 - Easy P001: RGB+IMU has ATE in all three seeds, but 1 m RPE pairs are unavailable.
 - Easy P002: both fusion modes outperform RGB.
 - The ordering changes between P000 and P002, so no universal fusion advantage is
   claimed.
+- Never replace `N/A` with zero; show the valid seed count above every bar.
 
 ## Slide: Hard results
 
-Use `results/A/figures/hard_robustness.png`.
+Use `presentation/A/figures/data/hard_three_cases_bars.png`.
 
 - Full-window hard ATE/RPE is N/A because map frames are discontinuous.
 - RGB coverage: 50.3%; RGB+IMU: 28.0%; RGB-D+IMU: 60.0%.
@@ -45,6 +45,15 @@ Use `results/A/figures/hard_common_summary.png` for conditional accuracy.
 - The 12.9-14.9 s interval is the same for all modes and remains on map 0.
 - RGB seed 2 has zero coverage in this interval and is retained as a failure.
 - Conditional accuracy is never shown without its valid-frame coverage.
+
+## Slide: Metric interpretation
+
+- ATE and RPE are reported independently; RPE unavailability does not invalidate ATE.
+- The current primary trajectory is optimized keyframes, not the official largest-map
+  full-frame trajectory.
+- RGB and fusion modes therefore use different numbers of poses.
+- Treat the current bars as a baseline diagnostic; recompute official full-frame
+  trajectories before claiming a final cross-mode accuracy ranking.
 
 ## Slide: Conclusions
 

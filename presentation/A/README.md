@@ -9,9 +9,14 @@ presentation/A/
 ├─ A_PR_BODY.md
 ├─ experiment_notes.md
 ├─ A_presentation_script.md
+├─ data_slide_text.md
 ├─ docs/
 │  └─ available_sequences_report.md
 └─ figures/
+   ├─ data/
+   │  ├─ easy_three_cases_bars.png
+   │  ├─ hard_three_cases_bars.png
+   │  └─ per-case PNG/SVG charts
    ├─ baseline_summary.png
    ├─ validation_summary.png
    ├─ hard_robustness.png
@@ -34,8 +39,10 @@ presentation/A/
 
 - Slide 3: ORB-SLAM3 baseline and research gap.
 - Slide 5: shared TartanAir setup and evaluation protocol.
-- Slide 6: baseline accuracy and coverage results.
-- Slide 6 follow-up: hard robustness and conditional accuracy.
+- Slide 6: Easy P000/P001/P002 bar-chart overview.
+- Slide 7: Hard P000/P001/P002 bar-chart overview.
+- Slide 8: metric interpretation, initialization failure and map discontinuity.
+- Backup: per-case P000/P001/P002 charts in `presentation/A/figures/data/`.
 
 ## Required caveat
 
