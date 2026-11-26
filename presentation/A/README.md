@@ -10,12 +10,14 @@ presentation/A/
 ├─ experiment_notes.md
 ├─ A_presentation_script.md
 ├─ data_slide_text.md
+├─ sensor_degradation_slide.md
 ├─ docs/
 │  └─ available_sequences_report.md
 └─ figures/
    ├─ data/
    │  ├─ easy_three_cases_bars.png
    │  ├─ hard_three_cases_bars.png
+   │  ├─ sensor_degradation_overview.png
    │  └─ per-case PNG/SVG charts
    ├─ baseline_summary.png
    ├─ validation_summary.png

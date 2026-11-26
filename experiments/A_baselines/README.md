@@ -164,6 +164,8 @@ python "${REPO_ROOT}/experiments/A_baselines/plot_available_trajectories.py" \
   --root "${REPO_ROOT}"
 python "${REPO_ROOT}/experiments/A_baselines/plot_case_bars.py" \
   --root "${REPO_ROOT}"
+python "${REPO_ROOT}/experiments/A_baselines/plot_sensor_degradation_overview.py" \
+  --root "${REPO_ROOT}"
 ```
 
 To repair evaluation-only defects in an existing 54-run matrix without rerunning the

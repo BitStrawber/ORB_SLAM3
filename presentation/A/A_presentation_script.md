@@ -160,6 +160,7 @@ Easy P001 也提供了关键的自检结果：RGB+IMU 的 3 个 seed 都有可�
 
 ### 页面要点
 
+- 素材：`presentation/A/figures/data/sensor_degradation_overview.png`
 - RGB：弱纹理、模糊、光照变化、遮挡
 - IMU：初始化失败、最近丢失和积分漂移
 - Depth：空洞、噪声、无效像素和连续中断
