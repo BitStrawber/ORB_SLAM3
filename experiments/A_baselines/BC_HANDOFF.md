@@ -59,6 +59,8 @@ to `run_baseline.py`.
 - Only compare ATE/RPE when `metric_status` is `ok`. If it is
   `invalid_map_discontinuity`, coverage and lost events remain available but ATE
   must be reported as `NA`.
+- Hard dense diagnostics exist for failure analysis only. Do not place them in the same
+  table as fixed-window primary metrics.
 - Failed initialization must be preserved as a failed run.
 
 ## Minimum handoff smoke test

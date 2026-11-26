@@ -12,7 +12,8 @@ presentation/A/
    ├─ baseline_summary.png
    ├─ easy_rgb_overlay.png
    ├─ easy_rgb_imu_overlay.png
-   └─ easy_rgbd_imu_overlay.png
+   ├─ easy_rgbd_imu_overlay.png
+   └─ hard_dense_diagnostic.png
 ```
 
 ## Suggested slide allocation

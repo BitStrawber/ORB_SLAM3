@@ -20,6 +20,12 @@ window. The experiment intentionally keeps failed and map-discontinuous runs vis
 - Easy RGB-D+IMU: 0.224 m ATE, 98% coverage.
 - Hard all modes: ATE N/A; coverage RGB 27.0%, RGB+IMU 20.0%, RGB-D+IMU 58.0%.
 
+Separate hard dense diagnostic, largest connected map:
+
+- RGB: 0.208 m ATE, coverage 27.0%.
+- RGB+IMU: 5.871 m ATE, coverage 20.0%.
+- RGB-D+IMU: 5.467 m ATE, coverage 58.0%.
+
 ## Interpretation
 
 RGB+IMU does not universally outperform RGB. On easy/P000 it is less accurate and has

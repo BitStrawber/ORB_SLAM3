@@ -29,6 +29,12 @@ Use `results/A/figures/baseline_summary.png`.
 - Hard RGB+IMU: ATE N/A, 20.0% coverage.
 - Hard RGB-D+IMU: ATE N/A, 58.0% coverage.
 
+Separate dense per-frame diagnostic on the largest connected hard map:
+
+- RGB: 0.208 m ATE, 27.0% coverage.
+- RGB+IMU: 5.871 m ATE, 20.0% coverage.
+- RGB-D+IMU: 5.467 m ATE, 58.0% coverage.
+
 ## Slide: Interpretation
 
 - RGB+IMU is not universally better than RGB on a short easy sequence.
@@ -36,4 +42,5 @@ Use `results/A/figures/baseline_summary.png`.
   RGB at 1.140 m.
 - Hard sequences produce map changes severe enough that fixed-window ATE is undefined.
 - Coverage and loss events are reported rather than hiding this failure.
+- Dense hard numbers are diagnostic only and must not be mixed with the primary table.
 - No validation sequence was used for further parameter tuning.

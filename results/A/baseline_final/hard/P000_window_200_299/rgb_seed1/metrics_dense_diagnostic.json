@@ -1,0 +1,28 @@
+{
+  "alignment": "sim3",
+  "ate_mean": 0.21836520082706734,
+  "ate_median": 0.19513338351568882,
+  "ate_rmse": 0.2525965511293825,
+  "ate_std": 0.12697108611890076,
+  "evaluated_map_id": 0,
+  "evaluated_map_valid_rows": 19,
+  "evaluated_window_end": 22.0,
+  "evaluated_window_start": 20.100000381469727,
+  "input_frames": 100,
+  "lost_events": 11,
+  "map_ids_in_valid_tracking": [
+    0,
+    1
+  ],
+  "matched_pose_frames": 19,
+  "mean_latency_ms": 38.3122203,
+  "orientation_ape_rmse_deg": 20.785168989792115,
+  "p95_latency_ms": 78.69535174999997,
+  "rpe_delta": 1.0,
+  "rpe_delta_unit": "meters",
+  "rpe_rotation_deg_rmse": 5.1865150986929365,
+  "rpe_translation_rmse": 0.7573238310830115,
+  "status": "ok",
+  "valid_pose_frames": 33,
+  "valid_pose_ratio": 0.33
+}

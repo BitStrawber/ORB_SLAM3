@@ -129,7 +129,14 @@ results/A/figures/baseline_summary.png
 results/A/baseline_final/
 results/A/baseline_aggregate.csv
 results/A/baseline_aggregate.json
+results/A/hard_dense_metrics.csv
+results/A/hard_dense_metrics.json
+results/A/hard_dense_aggregate.csv
+results/A/hard_dense_aggregate.json
 ```
 
 Some easy/hard fusion runs still lose tracking. This is reported as an actual baseline
 result and must not be replaced by successful-only segments.
+
+The hard dense files are explicitly diagnostic: they use per-frame trajectories on the
+largest connected map and are not comparable to the primary fixed-window keyframe table.

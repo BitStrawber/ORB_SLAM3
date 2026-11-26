@@ -71,6 +71,21 @@ These are valid findings, not grounds for retuning on the validation sequence.
 P002 changes the sign of the easy accuracy ordering: both fusion modes outperform RGB
 there. This scene dependence prevents a universal claim that one mode is always better.
 
+## Hard dense diagnostic
+
+The primary hard ATE/RPE table remains `N/A` because the fixed window crosses map
+frames. For failure analysis and presentation only, the per-frame body trajectories
+were separately evaluated on the largest connected map segment:
+
+| Mode | ATE [m] | RPE translation [m] | RPE rotation [deg] | Coverage | Lost events |
+|---|---:|---:|---:|---:|---:|
+| rgb | 0.208 ± 0.052 | 0.484 ± 0.243 | 3.599 ± 1.388 | 27.0% | 6.3 |
+| rgb_imu | 5.871 ± 0.431 | 4.887 ± 0.132 | 73.648 ± 17.840 | 20.0% | 18.3 |
+| rgbd_imu | 5.467 ± 0.000 | 2.051 ± 0.000 | 24.740 ± 0.000 | 58.0% | 20.0 |
+
+This table must always be labeled **dense per-frame diagnostic, largest connected map**.
+It is not the primary fixed-window result and must not be mixed with the easy table.
+
 ## Repeatability
 
 A repeated easy/RGB+IMU run with the same seed still differed because ORB-SLAM3 uses
@@ -83,3 +98,4 @@ deterministic. Seed variation must be interpreted together with scheduling varia
 - The fixed short window avoids long trajectories where additional map resets dominate.
 - TartanAir IMU is synthetic and ORB noise parameters use an EuRoC-scale setting.
 - Hard ATE is unavailable because map continuity fails; this is a real experiment result.
+- A separate dense diagnostic exists for presentations, but it is not the primary metric.
