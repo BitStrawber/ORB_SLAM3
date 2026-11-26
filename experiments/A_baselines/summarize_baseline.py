@@ -142,10 +142,13 @@ def main() -> None:
             row for row in aggregate if row["difficulty"] == difficulty
         ]
         x = np.arange(len(MODES))
+        ate_means = np.array([row["ate_rmse_m_mean"] for row in selected])
+        ate_stds = np.array([row["ate_rmse_m_std"] for row in selected])
+        ate_errors = np.vstack([np.minimum(ate_means, ate_stds), ate_stds])
         axes[row_index, 0].bar(
             x,
-            [row["ate_rmse_m_mean"] for row in selected],
-            yerr=[row["ate_rmse_m_std"] for row in selected],
+            ate_means,
+            yerr=ate_errors,
             capsize=4,
             color=colors,
         )
@@ -154,10 +157,19 @@ def main() -> None:
         axes[row_index, 0].set_title(f"{difficulty}: trajectory error")
         axes[row_index, 0].grid(True, axis="y", alpha=0.3)
 
+        coverage_means = 100.0 * np.array(
+            [row["valid_pose_ratio_mean"] for row in selected]
+        )
+        coverage_stds = 100.0 * np.array(
+            [row["valid_pose_ratio_std"] for row in selected]
+        )
+        coverage_errors = np.vstack(
+            [np.minimum(coverage_means, coverage_stds), coverage_stds]
+        )
         axes[row_index, 1].bar(
             x,
-            [100.0 * row["valid_pose_ratio_mean"] for row in selected],
-            yerr=[100.0 * row["valid_pose_ratio_std"] for row in selected],
+            coverage_means,
+            yerr=coverage_errors,
             capsize=4,
             color=colors,
         )
