@@ -12,7 +12,7 @@ optimizer or fusion backend:
 ## Controlled protocol
 
 - Dataset: TartanAir V2, `OldTownSummer`
-- Primary trajectories: easy `P000` and hard `P000`
+- Primary trajectory: easy `P000`
 - Fixed evaluation window: frames 200-299, 20.0-29.9 seconds
 - Seeds: `0`, `1`, `2`
 - Camera: pinhole 640x640, `fx=fy=320`, `cx=cy=320`, zero distortion
@@ -40,9 +40,6 @@ three keyframe trajectories was unusable, so aggregate error uses the two valid 
 | easy | rgb | 3/3 | 1.659 ± 0.021 | 1.270 ± 0.284 | 21.776 ± 5.539 | 98.0% | 0 |
 | easy | rgb_imu | 2/3 | 0.123 | 0.608 | 19.907 | 73.3% ± 4.6% | 8.0 ± 1.7 |
 | easy | rgbd_imu | 3/3 | 0.224 ± 0.012 | 0.634 ± 0.003 | 25.027 ± 0.440 | 98.0% | 0 |
-| hard | rgb | 0/3 | N/A | N/A | N/A | 27.0% ± 5.3% | 6.3 ± 4.5 |
-| hard | rgb_imu | 0/3 | N/A | N/A | N/A | 20.0% ± 1.7% | 18.3 ± 1.2 |
-| hard | rgbd_imu | 0/3 | N/A | N/A | N/A | 58.0% | 20.0 |
 
 ## Interpretation
 
@@ -50,10 +47,6 @@ The controlled experiment does not show RGB+IMU outperforming RGB on easy/P000.
 RGB+IMU has lower coverage, more loss events, and one seed without a usable optimized
 keyframe trajectory. RGB-D+IMU is more stable than RGB+IMU but still does not outperform
 RGB in ATE on this short easy window.
-
-Hard scenarios cause repeated map changes. Under the fixed-window rule, ATE cannot be
-defined because different maps do not share a consistent coordinate frame. Coverage and
-loss events are reported instead of manufacturing a trajectory from incompatible maps.
 
 These are valid findings, not grounds for retuning on the validation sequence.
 
@@ -64,28 +57,9 @@ These are valid findings, not grounds for retuning on the validation sequence.
 | easy | rgb | 1.140 | 99% | 0 |
 | easy | rgb_imu | 0.328 | 99% | 0 |
 | easy | rgbd_imu | 0.281 | 98% | 0 |
-| hard | rgb | N/A | 57% | 6 |
-| hard | rgb_imu | N/A | 32% | 26 |
-| hard | rgbd_imu | N/A | 64% | 17 |
 
 P002 changes the sign of the easy accuracy ordering: both fusion modes outperform RGB
 there. This scene dependence prevents a universal claim that one mode is always better.
-
-## Hard common-window result
-
-The primary 9.9-second hard window crosses map frames, so its ATE/RPE remains `N/A`.
-For a valid numerical hard comparison, all modes were evaluated on the identical
-20.0-22.0 second interval, where the audit confirmed every run remains on map 0.
-The trajectory source and alignment rules are identical across modes:
-
-| Mode | ATE [m] | RPE translation [m] | RPE rotation [deg] | In-window coverage | Lost frames |
-|---|---:|---:|---:|---:|---:|
-| rgb | 0.203 ± 0.051 | 0.380 ± 0.057 | 3.023 ± 0.122 | 93.7% | 1.3 |
-| rgb_imu | 0.911 ± 0.000 | 2.740 ± 0.000 | 36.968 ± 0.000 | 28.6% | 15.0 |
-| rgbd_imu | 0.877 ± 0.000 | 1.139 ± 0.000 | 30.908 ± 0.000 | 71.4% | 6.0 |
-
-This is a separate hard common-window experiment. RPE uses a 5-frame interval. It is
-not interchangeable with the easy 9.9-second table.
 
 ## Repeatability
 
@@ -98,6 +72,3 @@ deterministic. Seed variation must be interpreted together with scheduling varia
 - One simulation environment and one paired scene are not enough for broad generalization.
 - The fixed short window avoids long trajectories where additional map resets dominate.
 - TartanAir IMU is synthetic and ORB noise parameters use an EuRoC-scale setting.
-- Hard ATE is unavailable because map continuity fails; this is a real experiment result.
-- A separate two-second common-window result provides valid hard ATE/RPE without
-  mixing different evaluation durations.

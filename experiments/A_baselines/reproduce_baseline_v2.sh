@@ -17,7 +17,7 @@ settings="${REPO_ROOT}/configs/A/tartanair.yaml"
 output_root="${A_OUTPUT_ROOT:-${REPO_ROOT}/results/A}"
 data_root="${TARTANAIR_ROOT:-${root}/data/TartanAirV2}"
 
-for difficulty in easy hard; do
+for difficulty in easy; do
   sequence="${data_root}/OldTownSummer/Data_${difficulty}/P000"
   inputs="${output_root}/inputs_final/OldTownSummer/${difficulty}/P000_2p0s_9p9s"
 

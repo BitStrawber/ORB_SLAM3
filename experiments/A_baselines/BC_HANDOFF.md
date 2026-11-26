@@ -59,13 +59,11 @@ to `run_baseline.py`.
 - Only compare ATE/RPE when `metric_status` is `ok`. If it is
   `invalid_map_discontinuity`, coverage and lost events remain available but ATE
   must be reported as `NA`.
-- Hard common-window metrics exist on the identical 20.0-22.0 second interval and are
-  paired across modes.
 - Failed initialization must be preserved as a failed run.
 
 ## Minimum handoff smoke test
 
-For both easy and hard:
+For the frozen easy handoff:
 
 1. Run clean `rgb`.
 2. Run one B-corrupted `rgb`.

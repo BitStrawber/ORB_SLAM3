@@ -5,7 +5,6 @@
 - Dataset: TartanAir V2
 - Environment: `OldTownSummer`
 - Easy trajectory: `Data_easy/P000`
-- Hard trajectory: `Data_hard/P000`
 - Evaluation window: frames 200-299, 20.0-29.9 seconds at 10 Hz
 - Modes: `rgb`, `rgb_imu`, `rgbd_imu`
 - Seeds: `0`, `1`, `2`
@@ -129,14 +128,10 @@ results/A/figures/baseline_summary.png
 results/A/baseline_final/
 results/A/baseline_aggregate.csv
 results/A/baseline_aggregate.json
-results/A/hard_common_metrics.csv
-results/A/hard_common_metrics.json
-results/A/hard_common_aggregate.csv
-results/A/hard_common_aggregate.json
+results/A/validation_metrics.csv
+results/A/validation_metrics.json
 ```
 
-Some easy/hard fusion runs still lose tracking. This is reported as an actual baseline
-result and must not be replaced by successful-only segments.
-
-The hard common-window files use the identical 20.0-22.0 second interval, same per-frame
-trajectory source, same alignment policy, and a 5-frame RPE interval for all three modes.
+Some easy fusion runs still lose tracking. This is reported as an actual baseline
+result and must not be replaced by successful-only segments. The PR reports the easy
+P000 matrix and the P002 easy holdout only.

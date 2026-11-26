@@ -2,6 +2,3 @@ dataset,environment,trajectory,window,difficulty,mode,seed,status,ate_rmse_m,ori
 TartanAirV2,OldTownSummer,P002,20.0-29.9s,easy,rgb,0,ok,1.1395193479686947,141.38851177052368,0.99,0
 TartanAirV2,OldTownSummer,P002,20.0-29.9s,easy,rgb_imu,0,ok,0.32849335075351893,63.302522655837635,0.99,0
 TartanAirV2,OldTownSummer,P002,20.0-29.9s,easy,rgbd_imu,0,ok,0.2807358347550066,64.37211132866432,0.98,0
-TartanAirV2,OldTownSummer,P002,20.0-29.9s,hard,rgb,0,failed,,,0.57,6
-TartanAirV2,OldTownSummer,P002,20.0-29.9s,hard,rgb_imu,0,failed,,,0.32,26
-TartanAirV2,OldTownSummer,P002,20.0-29.9s,hard,rgbd_imu,0,failed,,,0.64,17

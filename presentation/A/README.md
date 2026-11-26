@@ -12,8 +12,7 @@ presentation/A/
    ├─ baseline_summary.png
    ├─ easy_rgb_overlay.png
    ├─ easy_rgb_imu_overlay.png
-   ├─ easy_rgbd_imu_overlay.png
-   └─ hard_common_window.png
+   └─ easy_rgbd_imu_overlay.png
 ```
 
 ## Suggested slide allocation
@@ -24,6 +23,5 @@ presentation/A/
 
 ## Required caveat
 
-Hard-window ATE is currently `N/A` because multiple map coordinate frames are active.
-Do not state that fusion always improves accuracy. On easy/P000 the ordering was
+Do not state that fusion always improves accuracy. On easy/P000 the ordering is
 scene-dependent, and P002 produced a different ordering from P000.

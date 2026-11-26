@@ -18,16 +18,9 @@ window. The experiment intentionally keeps failed and map-discontinuous runs vis
 - Easy RGB: 1.659 m ATE, 98% coverage.
 - Easy RGB+IMU: 0.123 m ATE on two valid seeds, 73.3% mean coverage.
 - Easy RGB-D+IMU: 0.224 m ATE, 98% coverage.
-- Hard all modes: ATE N/A; coverage RGB 27.0%, RGB+IMU 20.0%, RGB-D+IMU 58.0%.
-
-Hard common-window result, identical 20.0-22.0 second interval:
-
-- RGB: 0.203 m ATE, in-window coverage 93.7%.
-- RGB+IMU: 0.911 m ATE, in-window coverage 28.6%.
-- RGB-D+IMU: 0.877 m ATE, in-window coverage 71.4%.
 
 ## Interpretation
 
 RGB+IMU does not universally outperform RGB. On easy/P000 it is less accurate and has
 more loss events. The P002 holdout gives the opposite easy ordering, showing strong scene
-dependence. Hard failures are map-continuity failures, not missing data.
+dependence.

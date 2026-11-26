@@ -18,7 +18,7 @@ import numpy as np
 
 
 MODES = ["rgb", "rgb_imu", "rgbd_imu"]
-DIFFICULTIES = ["easy", "hard"]
+DIFFICULTIES = ["easy"]
 SEEDS = [0, 1, 2]
 
 
@@ -106,7 +106,9 @@ def main() -> None:
 
     csv_path = result_root / "baseline_metrics.csv"
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(
+            handle, fieldnames=list(rows[0]), lineterminator="\n"
+        )
         writer.writeheader()
         writer.writerows(rows)
     (result_root / "baseline_metrics.json").write_text(
@@ -182,7 +184,9 @@ def main() -> None:
     )
     aggregate_csv = result_root / "baseline_aggregate.csv"
     with aggregate_csv.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(aggregate[0]))
+        writer = csv.DictWriter(
+            handle, fieldnames=list(aggregate[0]), lineterminator="\n"
+        )
         writer.writeheader()
         writer.writerows(aggregate)
 
@@ -215,7 +219,9 @@ def main() -> None:
                 )
     validation_csv = result_root / "validation_metrics.csv"
     with validation_csv.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(validation_rows[0]))
+        writer = csv.DictWriter(
+            handle, fieldnames=list(validation_rows[0]), lineterminator="\n"
+        )
         writer.writeheader()
         writer.writerows(validation_rows)
     (result_root / "validation_metrics.json").write_text(
@@ -223,9 +229,9 @@ def main() -> None:
         encoding="utf-8",
     )
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.8))
     colors = ["#4C78A8", "#F58518", "#54A24B"]
-    for row_index, difficulty in enumerate(DIFFICULTIES):
+    for difficulty in DIFFICULTIES:
         selected = [
             row for row in aggregate if row["difficulty"] == difficulty
         ]
@@ -254,23 +260,23 @@ def main() -> None:
                 ate_stds,
             ]
         )
-        axes[row_index, 0].bar(
+        axes[0].bar(
             x,
             ate_means,
             yerr=ate_errors,
             capsize=4,
             color=colors,
         )
-        axes[row_index, 0].set_xticks(x, MODES)
-        axes[row_index, 0].set_ylabel("ATE RMSE [m]")
-        axes[row_index, 0].set_title(f"{difficulty}: trajectory error")
-        axes[row_index, 0].grid(True, axis="y", alpha=0.3)
+        axes[0].set_xticks(x, MODES)
+        axes[0].set_ylabel("ATE RMSE [m]")
+        axes[0].set_title("Trajectory error")
+        axes[0].grid(True, axis="y", alpha=0.3)
         if np.isnan(ate_means).any():
-            axes[row_index, 0].text(
+            axes[0].text(
                 0.5,
                 0.5,
                 "N/A: no single map covers the fixed window",
-                transform=axes[row_index, 0].transAxes,
+                transform=axes[0].transAxes,
                 ha="center",
                 va="center",
                 alpha=0.65,
@@ -305,19 +311,19 @@ def main() -> None:
                 coverage_stds,
             ]
         )
-        axes[row_index, 1].bar(
+        axes[1].bar(
             x,
             coverage_means,
             yerr=coverage_errors,
             capsize=4,
             color=colors,
         )
-        axes[row_index, 1].set_xticks(x, MODES)
-        axes[row_index, 1].set_ylim(0, 105)
-        axes[row_index, 1].set_ylabel("Valid pose coverage [%]")
-        axes[row_index, 1].set_title(f"{difficulty}: coverage")
-        axes[row_index, 1].grid(True, axis="y", alpha=0.3)
-    fig.suptitle("A Baseline: TartanAir P000, 3 seeds, 20.0-29.9 seconds")
+        axes[1].set_xticks(x, MODES)
+        axes[1].set_ylim(0, 105)
+        axes[1].set_ylabel("Valid pose coverage [%]")
+        axes[1].set_title("Tracking coverage")
+        axes[1].grid(True, axis="y", alpha=0.3)
+    fig.suptitle("A Baseline: TartanAir easy P000, 3 seeds, 20.0-29.9 seconds")
     fig.tight_layout()
     fig.savefig(figure_root / "baseline_summary.png", dpi=170)
     plt.close(fig)

@@ -40,47 +40,5 @@
     "trajectory": "P002",
     "valid_pose_ratio": 0.98,
     "window": "20.0-29.9s"
-  },
-  {
-    "ate_rmse_m": null,
-    "dataset": "TartanAirV2",
-    "difficulty": "hard",
-    "environment": "OldTownSummer",
-    "lost_events": 6,
-    "mode": "rgb",
-    "orientation_ape_rmse_deg": null,
-    "seed": 0,
-    "status": "failed",
-    "trajectory": "P002",
-    "valid_pose_ratio": 0.57,
-    "window": "20.0-29.9s"
-  },
-  {
-    "ate_rmse_m": null,
-    "dataset": "TartanAirV2",
-    "difficulty": "hard",
-    "environment": "OldTownSummer",
-    "lost_events": 26,
-    "mode": "rgb_imu",
-    "orientation_ape_rmse_deg": null,
-    "seed": 0,
-    "status": "failed",
-    "trajectory": "P002",
-    "valid_pose_ratio": 0.32,
-    "window": "20.0-29.9s"
-  },
-  {
-    "ate_rmse_m": null,
-    "dataset": "TartanAirV2",
-    "difficulty": "hard",
-    "environment": "OldTownSummer",
-    "lost_events": 17,
-    "mode": "rgbd_imu",
-    "orientation_ape_rmse_deg": null,
-    "seed": 0,
-    "status": "failed",
-    "trajectory": "P002",
-    "valid_pose_ratio": 0.64,
-    "window": "20.0-29.9s"
   }
 ]

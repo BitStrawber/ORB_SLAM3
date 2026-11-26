@@ -1,6 +1,7 @@
 dataset: TartanAirV2
 environment: OldTownSummer
 trajectory: P000
+difficulty: easy
 start_frame: 200
 frame_count: 100
 time_window_seconds: [20.0, 29.9]
@@ -17,8 +18,8 @@ alignments:
   rgbd_imu: se3
 rpe_delta: 1.0
 rpe_delta_unit: meters
-trajectory_source: per_frame_body
-optimized_trajectory: diagnostic_only
+trajectory_source: optimized_keyframe_body
+optimized_trajectory: primary
 map_policy: fixed_window_requires_single_map
 invalid_map_policy: ate_rpe_na
 thread_environment:
