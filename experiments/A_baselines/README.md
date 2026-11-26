@@ -146,6 +146,16 @@ reproduced with:
 bash "${REPO_ROOT}/experiments/A_baselines/reproduce_baseline_v2.sh"
 ```
 
+To run the remaining physical trajectories in the local package:
+
+```bash
+bash "${REPO_ROOT}/experiments/A_baselines/run_missing_sequences.sh"
+python "${REPO_ROOT}/experiments/A_baselines/summarize_all_sequences.py" \
+  --root "${REPO_ROOT}"
+python "${REPO_ROOT}/experiments/A_baselines/plot_available_trajectories.py" \
+  --root "${REPO_ROOT}"
+```
+
 `select_hard_window.py` is the audit utility used to find a common hard interval from
 tracking validity and map continuity only. Its output is not used to choose a window by
 the resulting ATE.
@@ -183,6 +193,11 @@ results/A/figures/hard_map_segments.png
 results/A/figures/hard_rgb_overlay.png
 results/A/figures/hard_rgb_imu_overlay.png
 results/A/figures/hard_rgbd_imu_overlay.png
+results/A/all_sequences_metrics.csv
+results/A/all_sequences_aggregate.csv
+results/A/available_sequence_trajectory_manifest.csv
+results/A/figures/easy_available_trajectories.png
+results/A/figures/hard_available_trajectories.png
 ```
 
 Failed initialization and tracking runs remain in the CSV/JSON outputs. They are not

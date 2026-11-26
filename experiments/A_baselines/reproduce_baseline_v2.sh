@@ -105,3 +105,9 @@ run_case \
   --root "${REPO_ROOT}"
 "${python_bin}" "${REPO_ROOT}/experiments/A_baselines/summarize_baseline.py" \
   --root "${REPO_ROOT}"
+
+bash "${REPO_ROOT}/experiments/A_baselines/run_missing_sequences.sh"
+"${python_bin}" "${REPO_ROOT}/experiments/A_baselines/summarize_all_sequences.py" \
+  --root "${REPO_ROOT}"
+"${python_bin}" "${REPO_ROOT}/experiments/A_baselines/plot_available_trajectories.py" \
+  --root "${REPO_ROOT}"

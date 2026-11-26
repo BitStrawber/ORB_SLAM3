@@ -10,6 +10,7 @@
 - 主实验：easy `P000`，第 200–299 帧，20.0–29.9 s
 - Holdout：easy `P002`，第 200–299 帧，20.0–29.9 s
 - Hard 鲁棒性实验：hard `P001`，第 100–199 帧，10.0–19.9 s
+- 扩展矩阵：当前下载包内 Easy/Hard 的 P000、P001、P002 全部轨迹
 - 模式：`rgb`、`rgb_imu`、`rgbd_imu`
 - 随机种子：`0`、`1`、`2`
 - 相机：640×640 pinhole，`fx=fy=320`，`cx=cy=320`，无畸变
@@ -57,6 +58,9 @@ results/A/hard_common_metrics.csv
 results/A/hard_common_aggregate.csv
 results/A/hard_map_segments.csv
 results/A/hard_map_segment_summary.csv
+results/A/all_sequences_metrics.csv
+results/A/all_sequences_aggregate.csv
+results/A/available_sequence_trajectory_manifest.csv
 ```
 
 每个 run 的原始结果、轨迹、tracking 日志和 `metrics.json`：
@@ -101,6 +105,8 @@ presentation/A/docs/
   该失败结果被保留。RGB 条件 ATE 为 0.281 m（2/3 seed），RGB+IMU 为 1.415 m，
   RGB-D+IMU 为 1.262 m。
 - 逐 map 分段评估得到 RGB 4 个、RGB+IMU 0 个、RGB-D+IMU 3 个可评估连续片段。
+- 扩展矩阵覆盖全部 6 条本地轨迹，共 54 个 run；新增 P001 Easy、P000 Hard 和
+  P002 Hard 的失败结果均保留。
 - 结果显示融合不保证在每条序列上优于 RGB；hard 场景主要暴露 IMU 初始化、跟踪丢失
   和地图连续性失败。
 
@@ -112,5 +118,6 @@ presentation/A/docs/
 - 统一主轨迹为 TartanAir body/NED 坐标下的优化关键帧轨迹。
 - 增加 map-aware 评估：固定窗口跨地图时拒绝计算连续 ATE/RPE。
 - hard 全窗口提供鲁棒性指标，公共单地图窗口提供条件精度，逐 map 分段单独对齐。
+- 增加全部可用轨迹的统一汇总与逐模式轨迹图清单。
 - B/C 可直接替换 `rgb_path` 或 `depth_path` 后复用 `prepare_sequence.py` 和
   `run_baseline.py`；时间戳、帧 ID 和顺序必须保持不变。

@@ -1,0 +1,17 @@
+{
+  "alignment": "sim3",
+  "error": "Multiple maps are active in the fixed evaluation window; ATE/RPE would mix incompatible coordinate frames.",
+  "input_frames": 100,
+  "lost_events": 2,
+  "map_ids_in_valid_tracking": [
+    0,
+    1
+  ],
+  "mean_latency_ms": 29.669536999999995,
+  "p95_latency_ms": 42.48891884999998,
+  "rpe_delta": 1.0,
+  "rpe_delta_unit": "meters",
+  "status": "invalid_map_discontinuity",
+  "valid_pose_frames": 65,
+  "valid_pose_ratio": 0.65
+}

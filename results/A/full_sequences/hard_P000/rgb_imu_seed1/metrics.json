@@ -1,0 +1,13 @@
+{
+  "alignment": "se3",
+  "error": "FileInterfaceException: TUM trajectory files must have 8 entries per row and no trailing delimiter at the end of the rows (space)",
+  "input_frames": 100,
+  "lost_events": 20,
+  "mean_latency_ms": 56.01382374999999,
+  "p95_latency_ms": 103.73903954999999,
+  "rpe_delta": 1.0,
+  "rpe_delta_unit": "meters",
+  "status": "failed",
+  "valid_pose_frames": 26,
+  "valid_pose_ratio": 0.26
+}

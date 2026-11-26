@@ -8,6 +8,9 @@ presentation/A/
 ├─ A_baseline_slides.md
 ├─ A_PR_BODY.md
 ├─ experiment_notes.md
+├─ A_presentation_script.md
+├─ docs/
+│  └─ available_sequences_report.md
 └─ figures/
    ├─ baseline_summary.png
    ├─ validation_summary.png
@@ -22,7 +25,9 @@ presentation/A/
    ├─ validation_rgbd_imu_overlay.png
    ├─ hard_rgb_overlay.png
    ├─ hard_rgb_imu_overlay.png
-   └─ hard_rgbd_imu_overlay.png
+   ├─ hard_rgbd_imu_overlay.png
+   ├─ easy_all_sequences.png
+   └─ hard_all_sequences.png
 ```
 
 ## Suggested slide allocation

@@ -1,0 +1,18 @@
+{
+  "alignment": "se3",
+  "error": "FilterException: delta = 1.0 (m) produced an empty index list - try lower values or a less strict tolerance",
+  "evaluated_window_end": 19.899999618530273,
+  "evaluated_window_start": 10.0,
+  "input_frames": 100,
+  "lost_events": 19,
+  "map_ids_in_valid_tracking": [
+    0
+  ],
+  "mean_latency_ms": 50.25087583000001,
+  "p95_latency_ms": 89.71719124999998,
+  "rpe_delta": 1.0,
+  "rpe_delta_unit": "meters",
+  "status": "failed",
+  "valid_pose_frames": 25,
+  "valid_pose_ratio": 0.25
+}
