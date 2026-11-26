@@ -13,7 +13,7 @@ presentation/A/
    ├─ easy_rgb_overlay.png
    ├─ easy_rgb_imu_overlay.png
    ├─ easy_rgbd_imu_overlay.png
-   └─ hard_dense_diagnostic.png
+   └─ hard_common_window.png
 ```
 
 ## Suggested slide allocation

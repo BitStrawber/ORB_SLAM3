@@ -71,20 +71,21 @@ These are valid findings, not grounds for retuning on the validation sequence.
 P002 changes the sign of the easy accuracy ordering: both fusion modes outperform RGB
 there. This scene dependence prevents a universal claim that one mode is always better.
 
-## Hard dense diagnostic
+## Hard common-window result
 
-The primary hard ATE/RPE table remains `N/A` because the fixed window crosses map
-frames. For failure analysis and presentation only, the per-frame body trajectories
-were separately evaluated on the largest connected map segment:
+The primary 9.9-second hard window crosses map frames, so its ATE/RPE remains `N/A`.
+For a valid numerical hard comparison, all modes were evaluated on the identical
+20.0-22.0 second interval, where the audit confirmed every run remains on map 0.
+The trajectory source and alignment rules are identical across modes:
 
-| Mode | ATE [m] | RPE translation [m] | RPE rotation [deg] | Coverage | Lost events |
+| Mode | ATE [m] | RPE translation [m] | RPE rotation [deg] | In-window coverage | Lost frames |
 |---|---:|---:|---:|---:|---:|
-| rgb | 0.208 ± 0.052 | 0.484 ± 0.243 | 3.599 ± 1.388 | 27.0% | 6.3 |
-| rgb_imu | 5.871 ± 0.431 | 4.887 ± 0.132 | 73.648 ± 17.840 | 20.0% | 18.3 |
-| rgbd_imu | 5.467 ± 0.000 | 2.051 ± 0.000 | 24.740 ± 0.000 | 58.0% | 20.0 |
+| rgb | 0.203 ± 0.051 | 0.380 ± 0.057 | 3.023 ± 0.122 | 93.7% | 1.3 |
+| rgb_imu | 0.911 ± 0.000 | 2.740 ± 0.000 | 36.968 ± 0.000 | 28.6% | 15.0 |
+| rgbd_imu | 0.877 ± 0.000 | 1.139 ± 0.000 | 30.908 ± 0.000 | 71.4% | 6.0 |
 
-This table must always be labeled **dense per-frame diagnostic, largest connected map**.
-It is not the primary fixed-window result and must not be mixed with the easy table.
+This is a separate hard common-window experiment. RPE uses a 5-frame interval. It is
+not interchangeable with the easy 9.9-second table.
 
 ## Repeatability
 
@@ -98,4 +99,5 @@ deterministic. Seed variation must be interpreted together with scheduling varia
 - The fixed short window avoids long trajectories where additional map resets dominate.
 - TartanAir IMU is synthetic and ORB noise parameters use an EuRoC-scale setting.
 - Hard ATE is unavailable because map continuity fails; this is a real experiment result.
-- A separate dense diagnostic exists for presentations, but it is not the primary metric.
+- A separate two-second common-window result provides valid hard ATE/RPE without
+  mixing different evaluation durations.

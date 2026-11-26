@@ -20,11 +20,11 @@ window. The experiment intentionally keeps failed and map-discontinuous runs vis
 - Easy RGB-D+IMU: 0.224 m ATE, 98% coverage.
 - Hard all modes: ATE N/A; coverage RGB 27.0%, RGB+IMU 20.0%, RGB-D+IMU 58.0%.
 
-Separate hard dense diagnostic, largest connected map:
+Hard common-window result, identical 20.0-22.0 second interval:
 
-- RGB: 0.208 m ATE, coverage 27.0%.
-- RGB+IMU: 5.871 m ATE, coverage 20.0%.
-- RGB-D+IMU: 5.467 m ATE, coverage 58.0%.
+- RGB: 0.203 m ATE, in-window coverage 93.7%.
+- RGB+IMU: 0.911 m ATE, in-window coverage 28.6%.
+- RGB-D+IMU: 0.877 m ATE, in-window coverage 71.4%.
 
 ## Interpretation
 
