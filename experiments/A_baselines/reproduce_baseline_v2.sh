@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
 source /media/SSD0/XCX/ORB_SLAM3_A/activate_a_orb.sh
 
@@ -39,6 +39,13 @@ for difficulty in easy hard; do
         --output "${run_dir}" \
         --seed "${seed}" \
         --orb-root "${root}/repos/ORB_SLAM3"
+      run_status=$?
+      echo "RUN ${difficulty} ${mode} ${seed}: exit=${run_status}"
+      if [[ ${run_status} -ne 0 && ! -s "${run_dir}/trajectory_est.tum" ]]; then
+        printf '{"status":"failed","error":"runner exit %s and no trajectory"}\n' \
+          "${run_status}" > "${run_dir}/metrics.json"
+        continue
+      fi
 
       if [[ "${mode}" == "rgb" ]]; then
         alignment="sim3"
@@ -53,6 +60,7 @@ for difficulty in easy hard; do
         --output "${run_dir}/metrics.json" \
         --alignment "${alignment}" \
         --plot "${run_dir}/trajectory_overlay.png"
+      echo "EVAL ${difficulty} ${mode} ${seed}: exit=$?"
     done
   done
 done
