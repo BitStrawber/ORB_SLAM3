@@ -3,9 +3,11 @@
 
 from __future__ import annotations
 
+import argparse
 import csv
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import matplotlib
@@ -29,7 +31,16 @@ def sha256(path: Path) -> str:
 
 
 def main() -> None:
-    root = Path("/media/SSD0/XCX/ORB_SLAM3_A")
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--root",
+        type=Path,
+        default=Path(
+            os.environ.get("A_REPO_ROOT", Path(__file__).resolve().parents[2])
+        ),
+    )
+    args = parser.parse_args()
+    root = args.root.resolve()
     run_root = root / "results/A/baseline_final"
     result_root = root / "results/A"
     figure_root = result_root / "figures"

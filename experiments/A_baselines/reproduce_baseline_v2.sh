@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-source /media/SSD0/XCX/ORB_SLAM3_A/activate_a_orb.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(git -C "${SCRIPT_DIR}" rev-parse --show-toplevel)"
+if [[ -z "${A_ROOT:-}" ]]; then
+  A_ROOT="$(cd "${REPO_ROOT}/../.." && pwd)"
+  export A_ROOT
+fi
+source "${REPO_ROOT}/scripts/A/activate_a_orb.sh"
 
 root="${A_ROOT}"
-python_bin="${root}/conda_envs/a_orb/bin/python"
+python_bin="${A_CONDA_ENV}/bin/python"
 runner="${root}/build/A_baselines/run_tartanair"
-vocab="${root}/repos/ORB_SLAM3/Vocabulary/ORBvoc.txt"
-settings="${root}/configs/A/tartanair.yaml"
+vocab="${REPO_ROOT}/Vocabulary/ORBvoc.txt"
+settings="${REPO_ROOT}/configs/A/tartanair.yaml"
+output_root="${A_OUTPUT_ROOT:-${REPO_ROOT}/results/A}"
+data_root="${TARTANAIR_ROOT:-${root}/data/TartanAirV2}"
 
 for difficulty in easy hard; do
-  sequence="${root}/data/TartanAirV2/OldTownSummer/Data_${difficulty}/P000"
-  inputs="${root}/results/A/inputs_final/OldTownSummer/${difficulty}/P000_2p0s_9p9s"
+  sequence="${data_root}/OldTownSummer/Data_${difficulty}/P000"
+  inputs="${output_root}/inputs_final/OldTownSummer/${difficulty}/P000_2p0s_9p9s"
 
   if [[ ! -f "${inputs}/manifest.csv" ]]; then
     "${python_bin}" "${root}/experiments/A_baselines/prepare_sequence.py" \
@@ -23,7 +31,7 @@ for difficulty in easy hard; do
 
   for mode in rgb rgb_imu rgbd_imu; do
     for seed in 0 1 2; do
-      run_dir="${root}/results/A/baseline_final/${difficulty}/P000_window_200_299/${mode}_seed${seed}"
+      run_dir="${output_root}/baseline_final/${difficulty}/P000_window_200_299/${mode}_seed${seed}"
       if [[ -f "${run_dir}/metrics.json" ]]; then
         echo "SKIP ${difficulty} ${mode} ${seed}"
         continue
@@ -65,4 +73,5 @@ for difficulty in easy hard; do
   done
 done
 
-"${python_bin}" "${root}/experiments/A_baselines/summarize_baseline.py"
+"${python_bin}" "${REPO_ROOT}/experiments/A_baselines/summarize_baseline.py" \
+  --root "${REPO_ROOT}"

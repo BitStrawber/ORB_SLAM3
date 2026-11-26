@@ -39,41 +39,63 @@ RNG.
 ## Environment
 
 ```bash
-source /media/SSD0/XCX/ORB_SLAM3_A/activate_a_orb.sh
+export A_ROOT=/path/to/ORB_SLAM3_A
+export REPO_ROOT=/path/to/ORB_SLAM3
+source "${REPO_ROOT}/scripts/A/activate_a_orb.sh"
 ```
 
 Paths:
 
 ```text
-A_ROOT=/media/SSD0/XCX/ORB_SLAM3_A
+A_ROOT=<workspace containing data, conda_envs, install, build>
+REPO_ROOT=<this Git checkout>
 runner=A_ROOT/build/A_baselines/run_tartanair
-config=A_ROOT/configs/A/tartanair.yaml
-vocabulary=A_ROOT/repos/ORB_SLAM3/Vocabulary/ORBvoc.txt
+config=REPO_ROOT/configs/A/tartanair.yaml
+vocabulary=REPO_ROOT/Vocabulary/ORBvoc.txt
+```
+
+Create the environment and build:
+
+```bash
+conda env create -f "${REPO_ROOT}/configs/A/environment.yml"
+export A_CONDA_ENV="$(conda run -n a_orb python -c 'import sys; print(sys.prefix)')"
+bash "${REPO_ROOT}/scripts/A/build_pangolin.sh"
+bash "${REPO_ROOT}/experiments/A_baselines/build_a.sh"
+```
+
+The build requires Pangolin v0.6 at `A_PANGOLIN_PREFIX`, defaulting to
+`A_ROOT/install/pangolin`.
+
+Download and extract the public TartanAir assets:
+
+```bash
+python "${REPO_ROOT}/experiments/A_baselines/download_tartanair_a.py" \
+  --data-root "${A_ROOT}/data/TartanAirV2"
 ```
 
 ## Prepare a sequence
 
 ```bash
-python A_ROOT/experiments/A_baselines/prepare_sequence.py \
-  --sequence-root A_ROOT/data/TartanAirV2/OldTownSummer/Data_easy/P000 \
+python "${REPO_ROOT}/experiments/A_baselines/prepare_sequence.py" \
+  --sequence-root "${A_ROOT}/data/TartanAirV2/OldTownSummer/Data_easy/P000" \
   --start-frame 200 \
   --num-frames 100 \
-  --output A_ROOT/results/A/inputs_final/OldTownSummer/easy/P000_2p0s_9p9s
+  --output "${REPO_ROOT}/results/A/inputs_final/OldTownSummer/easy/P000_2p0s_9p9s"
 ```
 
 ## Run one configuration
 
 ```bash
-python A_ROOT/experiments/A_baselines/run_baseline.py \
-  --binary A_ROOT/build/A_baselines/run_tartanair \
-  --vocab A_ROOT/repos/ORB_SLAM3/Vocabulary/ORBvoc.txt \
-  --settings A_ROOT/configs/A/tartanair.yaml \
+python "${REPO_ROOT}/experiments/A_baselines/run_baseline.py" \
+  --binary "${A_ROOT}/build/A_baselines/run_tartanair" \
+  --vocab "${REPO_ROOT}/Vocabulary/ORBvoc.txt" \
+  --settings "${REPO_ROOT}/configs/A/tartanair.yaml" \
   --mode rgb \
-  --manifest A_ROOT/results/A/inputs_final/OldTownSummer/easy/P000_2p0s_9p9s/manifest.csv \
-  --imu A_ROOT/results/A/inputs_final/OldTownSummer/easy/P000_2p0s_9p9s/imu.csv \
-  --output A_ROOT/results/A/runs/new_run \
+  --manifest "${REPO_ROOT}/results/A/inputs_final/OldTownSummer/easy/P000_2p0s_9p9s/manifest.csv" \
+  --imu "${REPO_ROOT}/results/A/inputs_final/OldTownSummer/easy/P000_2p0s_9p9s/imu.csv" \
+  --output "${REPO_ROOT}/results/A/runs/new_run" \
   --seed 0 \
-  --orb-root A_ROOT/repos/ORB_SLAM3
+  --orb-root "${REPO_ROOT}"
 ```
 
 The runner is headless, uses `bUseViewer=false`, paces input at the timestamp rate,
@@ -87,9 +109,9 @@ trajectory.
 RGB uses Sim(3). RGB+IMU and RGB-D+IMU use SE(3). RPE uses a 1 m interval.
 
 ```bash
-python A_ROOT/experiments/A_baselines/evaluate_run.py \
+python "${REPO_ROOT}/experiments/A_baselines/evaluate_run.py" \
   --estimated RUN/trajectory_est.tum \
-  --reference A_ROOT/results/A/inputs_final/OldTownSummer/easy/P000_2p0s_9p9s/trajectory_gt.tum \
+  --reference "${REPO_ROOT}/results/A/inputs_final/OldTownSummer/easy/P000_2p0s_9p9s/trajectory_gt.tum" \
   --tracking RUN/tracking.csv \
   --output RUN/metrics.json \
   --alignment sim3 \
