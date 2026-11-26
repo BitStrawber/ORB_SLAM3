@@ -8,6 +8,7 @@ presentation/A/
 ├─ A_baseline_slides.md
 ├─ A_PR_BODY.md
 ├─ experiment_notes.md
+├─ A_presentation_script.md
 └─ figures/
    ├─ baseline_summary.png
    ├─ validation_summary.png
