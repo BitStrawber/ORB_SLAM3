@@ -70,6 +70,7 @@ def largest_map_window(path: Path) -> dict[str, float | int] | None:
     map_rows = [row for row in valid_rows if int(row["map_id"]) == map_id]
     return {
         "map_id": map_id,
+        "map_ids": sorted(counts),
         "valid_rows": count,
         "start": float(map_rows[0]["timestamp"]),
         "end": float(map_rows[-1]["timestamp"]),
@@ -98,7 +99,7 @@ def main() -> int:
     parser.add_argument("--rpe-delta-frames", default=10, type=int)
     parser.add_argument("--plot", type=Path)
     parser.add_argument(
-        "--map-segment", choices=["largest", "all"], default="largest"
+        "--map-segment", choices=["fixed", "largest", "all"], default="fixed"
     )
     args = parser.parse_args()
 
@@ -111,67 +112,101 @@ def main() -> int:
         reference = file_interface.read_tum_trajectory_file(str(args.reference))
         estimated = file_interface.read_tum_trajectory_file(str(args.estimated))
         map_window = largest_map_window(args.tracking)
-        if map_window and args.map_segment == "largest":
+        result["map_ids_in_valid_tracking"] = (
+            map_window["map_ids"] if map_window else []
+        )
+        if (
+            map_window
+            and args.map_segment == "fixed"
+            and len(map_window["map_ids"]) > 1
+        ):
+            result.update(
+                {
+                    "status": "invalid_map_discontinuity",
+                    "error": (
+                        "Multiple maps are active in the fixed evaluation window; "
+                        "ATE/RPE would mix incompatible coordinate frames."
+                    ),
+                }
+            )
+        else:
+            if map_window and args.map_segment == "largest":
+                reference = slice_trajectory(
+                    reference, float(map_window["start"]), float(map_window["end"])
+                )
+                estimated = slice_trajectory(
+                    estimated, float(map_window["start"]), float(map_window["end"])
+                )
+                result["evaluated_map_id"] = map_window["map_id"]
+                result["evaluated_map_valid_rows"] = map_window["valid_rows"]
+                result["evaluated_window_start"] = map_window["start"]
+                result["evaluated_window_end"] = map_window["end"]
+            else:
+                result["evaluated_window_start"] = float(reference.timestamps[0])
+                result["evaluated_window_end"] = float(reference.timestamps[-1])
+
             reference = slice_trajectory(
-                reference, float(map_window["start"]), float(map_window["end"])
+                reference,
+                float(result["evaluated_window_start"]),
+                float(result["evaluated_window_end"]),
             )
             estimated = slice_trajectory(
-                estimated, float(map_window["start"]), float(map_window["end"])
+                estimated,
+                float(result["evaluated_window_start"]),
+                float(result["evaluated_window_end"]),
             )
-            result["evaluated_map_id"] = map_window["map_id"]
-            result["evaluated_map_valid_rows"] = map_window["valid_rows"]
-            result["evaluated_window_start"] = map_window["start"]
-            result["evaluated_window_end"] = map_window["end"]
-        reference, estimated = sync.associate_trajectories(
-            reference, estimated, max_diff=args.max_time_diff
-        )
-        estimated.align(
-            reference,
-            correct_scale=args.alignment == "sim3",
-            correct_only_scale=False,
-        )
+            reference, estimated = sync.associate_trajectories(
+                reference, estimated, max_diff=args.max_time_diff
+            )
+            estimated.align(
+                reference,
+                correct_scale=args.alignment == "sim3",
+                correct_only_scale=False,
+            )
 
-        ape = metrics.APE(metrics.PoseRelation.translation_part)
-        ape.process_data((reference, estimated))
-        ape_result = ape.get_result()
+            ape = metrics.APE(metrics.PoseRelation.translation_part)
+            ape.process_data((reference, estimated))
+            ape_result = ape.get_result()
 
-        orientation_ape = metrics.APE(metrics.PoseRelation.rotation_angle_deg)
-        orientation_ape.process_data((reference, estimated))
-        orientation_ape_result = orientation_ape.get_result()
+            orientation_ape = metrics.APE(metrics.PoseRelation.rotation_angle_deg)
+            orientation_ape.process_data((reference, estimated))
+            orientation_ape_result = orientation_ape.get_result()
 
-        rpe_translation = metrics.RPE(
-            metrics.PoseRelation.translation_part,
-            args.rpe_delta_frames,
-            metrics.Unit.frames,
-        )
-        rpe_translation.process_data((reference, estimated))
-        translation_result = rpe_translation.get_result()
+            rpe_translation = metrics.RPE(
+                metrics.PoseRelation.translation_part,
+                args.rpe_delta_frames,
+                metrics.Unit.frames,
+            )
+            rpe_translation.process_data((reference, estimated))
+            translation_result = rpe_translation.get_result()
 
-        rpe_rotation = metrics.RPE(
-            metrics.PoseRelation.rotation_angle_deg,
-            args.rpe_delta_frames,
-            metrics.Unit.frames,
-        )
-        rpe_rotation.process_data((reference, estimated))
-        rotation_result = rpe_rotation.get_result()
+            rpe_rotation = metrics.RPE(
+                metrics.PoseRelation.rotation_angle_deg,
+                args.rpe_delta_frames,
+                metrics.Unit.frames,
+            )
+            rpe_rotation.process_data((reference, estimated))
+            rotation_result = rpe_rotation.get_result()
 
-        result.update(
-            {
-                "status": "ok",
-                "matched_pose_frames": len(reference.timestamps),
-                "ate_rmse": float(ape_result.stats["rmse"]),
-                "ate_mean": float(ape_result.stats["mean"]),
-                "ate_median": float(ape_result.stats["median"]),
-                "ate_std": float(ape_result.stats["std"]),
-                "orientation_ape_rmse_deg": float(
-                    orientation_ape_result.stats["rmse"]
-                ),
-                "rpe_translation_rmse": float(translation_result.stats["rmse"]),
-                "rpe_rotation_deg_rmse": float(rotation_result.stats["rmse"]),
-            }
-        )
+            result.update(
+                {
+                    "status": "ok",
+                    "matched_pose_frames": len(reference.timestamps),
+                    "ate_rmse": float(ape_result.stats["rmse"]),
+                    "ate_mean": float(ape_result.stats["mean"]),
+                    "ate_median": float(ape_result.stats["median"]),
+                    "ate_std": float(ape_result.stats["std"]),
+                    "orientation_ape_rmse_deg": float(
+                        orientation_ape_result.stats["rmse"]
+                    ),
+                    "rpe_translation_rmse": float(
+                        translation_result.stats["rmse"]
+                    ),
+                    "rpe_rotation_deg_rmse": float(rotation_result.stats["rmse"]),
+                }
+            )
 
-        if args.plot:
+        if args.plot and result.get("status") == "ok":
             positions_ref = reference.positions_xyz
             positions_est = estimated.positions_xyz
             fig = plt.figure(figsize=(7, 6))
@@ -196,7 +231,11 @@ def main() -> int:
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     print(json.dumps(result, indent=2, sort_keys=True))
-    return 0 if result.get("status") == "ok" else 2
+    return (
+        0
+        if result.get("status") in {"ok", "invalid_map_discontinuity"}
+        else 2
+    )
 
 
 if __name__ == "__main__":

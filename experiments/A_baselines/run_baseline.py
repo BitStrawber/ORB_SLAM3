@@ -12,7 +12,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import cv2
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 
 def git_head(repo: Path) -> str:
@@ -26,38 +28,45 @@ def git_head(repo: Path) -> str:
 
 def materialize_orb_trajectory(
     output: Path, settings: Path, mode: str
-) -> str:
+) -> dict[str, str]:
     raw_path = output / "trajectory_orb_raw.tum"
-    frame_path = output / "trajectory_frames.tum"
-    if (output / "trajectory_est.tum").exists():
-        shutil.copy2(output / "trajectory_est.tum", frame_path)
+    primary_path = output / "trajectory_est.tum"
+    if primary_path.exists():
+        shutil.copy2(primary_path, output / "trajectory_frames.tum")
     if not raw_path.exists() or raw_path.stat().st_size == 0:
-        return "per_frame_fallback_empty_official"
+        return {"primary": "per_frame_body", "optimized": "unavailable_empty"}
     rows = np.loadtxt(raw_path, ndmin=2)
     if rows.size == 0:
-        return "per_frame_fallback_empty_official"
-    # The official EuRoC save path is the authoritative optimized trajectory
-    # for inertial modes. For monocular RGB, keep the per-frame trajectory
-    # already transformed to the TartanAir body frame by run_tartanair.
-    if mode == "rgb":
-        return "per_frame_body"
+        return {"primary": "per_frame_body", "optimized": "unavailable_empty"}
     if np.median(rows[:, 0]) > 1e6:
         rows[:, 0] /= 1e9
     if rows.shape[0] < 10:
-        return "per_frame_fallback_degenerate_official"
+        return {"primary": "per_frame_body", "optimized": "unavailable_sparse"}
     covariance_rank = np.linalg.matrix_rank(
         np.cov(rows[:, 1:4], rowvar=False)
     )
     if covariance_rank < 2:
-        return "per_frame_fallback_degenerate_official"
+        return {"primary": "per_frame_body", "optimized": "unavailable_degenerate"}
+
+    if mode == "rgb":
+        storage = cv2.FileStorage(str(settings), cv2.FILE_STORAGE_READ)
+        tbc = storage.getNode("IMU.T_b_c1").mat()
+        storage.release()
+        tcb_rotation = np.linalg.inv(tbc[:3, :3])
+        camera_rotation = Rotation.from_quat(rows[:, [4, 5, 6, 3]])
+        body_rotation = camera_rotation * Rotation.from_matrix(tcb_rotation)
+        rows[:, 3:7] = body_rotation.as_quat()[:, [3, 0, 1, 2]]
 
     np.savetxt(
-        output / "trajectory_est.tum",
+        output / "trajectory_optimized.tum",
         rows,
         fmt="%.17g",
         delimiter=" ",
     )
-    return "orb_save_largest_map"
+    return {
+        "primary": "per_frame_body",
+        "optimized": "orb_save_largest_map",
+    }
 
 
 def main() -> int:
@@ -116,12 +125,21 @@ def main() -> int:
     with (output / "run.log").open("w", encoding="utf-8") as log:
         log.write("COMMAND=" + json.dumps(command) + "\n")
         log.flush()
+        run_env = os.environ.copy()
+        run_env.update(
+            {
+                "OMP_NUM_THREADS": "1",
+                "OPENBLAS_NUM_THREADS": "1",
+                "MKL_NUM_THREADS": "1",
+            }
+        )
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
+            env=run_env,
         )
         assert process.stdout is not None
         for line in process.stdout:
@@ -132,9 +150,11 @@ def main() -> int:
     meta["return_code"] = return_code
     meta["finished_utc"] = datetime.now(timezone.utc).isoformat()
     meta["status"] = "ok" if return_code == 0 else "failed"
-    meta["trajectory_source"] = materialize_orb_trajectory(
+    trajectory_sources = materialize_orb_trajectory(
         output, args.settings.resolve(), args.mode
     )
+    meta["trajectory_source"] = trajectory_sources["primary"]
+    meta["optimized_trajectory_source"] = trajectory_sources["optimized"]
     (output / "run_meta.json").write_text(
         json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )

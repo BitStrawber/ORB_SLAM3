@@ -28,6 +28,7 @@
 
 #include <System.h>
 #include <ImuTypes.h>
+#include "Thirdparty/DBoW2/DUtils/Random.h"
 
 namespace {
 
@@ -223,10 +224,11 @@ int main(int argc, char** argv) {
         const auto sensor = parse_mode(mode);
         const Sophus::SE3f camera_to_body = load_camera_to_body(settings);
 
-        std::srand(seed);
-        cv::setRNGSeed(seed);
-
         ORB_SLAM3::System slam(vocab, settings, sensor, false, 0, mode);
+        // System construction calls SeedRandOnce(0) from TwoViewReconstruction.
+        // Re-seed afterward so the CLI seed controls the actual run.
+        DUtils::Random::SeedRand(seed);
+        cv::setRNGSeed(seed);
         std::ofstream tracking(join_path(output, "tracking.csv"));
         tracking
             << "timestamp,valid,state,quality_rgb,quality_depth,source,latency_ms,map_id\n";

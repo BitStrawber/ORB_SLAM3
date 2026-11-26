@@ -61,7 +61,8 @@ def main() -> None:
                         "difficulty": difficulty,
                         "mode": mode,
                         "seed": seed,
-                        "run_status": metrics.get("status"),
+                        "run_status": meta.get("status", "unknown"),
+                        "metric_status": metrics.get("status"),
                         "ate_rmse_m": metrics.get("ate_rmse"),
                         "rpe_translation_rmse_m": metrics.get("rpe_translation_rmse"),
                         "rpe_rotation_rmse_deg": metrics.get("rpe_rotation_deg_rmse"),
@@ -85,6 +86,10 @@ def main() -> None:
                         ),
                         "git_commit": meta.get("git_commit", "unknown"),
                         "config_sha256": sha256(run_dir / "settings_snapshot.yaml"),
+                        "trajectory_source": meta.get("trajectory_source"),
+                        "optimized_trajectory_source": meta.get(
+                            "optimized_trajectory_source"
+                        ),
                     }
                 )
 
@@ -192,9 +197,30 @@ def main() -> None:
             row for row in aggregate if row["difficulty"] == difficulty
         ]
         x = np.arange(len(MODES))
-        ate_means = np.array([row["ate_rmse_m_mean"] for row in selected])
-        ate_stds = np.array([row["ate_rmse_m_std"] for row in selected])
-        ate_errors = np.vstack([np.minimum(ate_means, ate_stds), ate_stds])
+        ate_means = np.array(
+            [
+                row["ate_rmse_m_mean"]
+                if row["ate_rmse_m_mean"] is not None
+                else np.nan
+                for row in selected
+            ],
+            dtype=float,
+        )
+        ate_stds = np.array(
+            [
+                row["ate_rmse_m_std"]
+                if row["ate_rmse_m_std"] is not None
+                else 0.0
+                for row in selected
+            ],
+            dtype=float,
+        )
+        ate_errors = np.vstack(
+            [
+                np.where(np.isnan(ate_means), 0.0, np.minimum(ate_means, ate_stds)),
+                ate_stds,
+            ]
+        )
         axes[row_index, 0].bar(
             x,
             ate_means,
@@ -208,13 +234,32 @@ def main() -> None:
         axes[row_index, 0].grid(True, axis="y", alpha=0.3)
 
         coverage_means = 100.0 * np.array(
-            [row["valid_pose_ratio_mean"] for row in selected]
+            [
+                row["valid_pose_ratio_mean"]
+                if row["valid_pose_ratio_mean"] is not None
+                else np.nan
+                for row in selected
+            ],
+            dtype=float,
         )
         coverage_stds = 100.0 * np.array(
-            [row["valid_pose_ratio_std"] for row in selected]
+            [
+                row["valid_pose_ratio_std"]
+                if row["valid_pose_ratio_std"] is not None
+                else 0.0
+                for row in selected
+            ],
+            dtype=float,
         )
         coverage_errors = np.vstack(
-            [np.minimum(coverage_means, coverage_stds), coverage_stds]
+            [
+                np.where(
+                    np.isnan(coverage_means),
+                    0.0,
+                    np.minimum(coverage_means, coverage_stds),
+                ),
+                coverage_stds,
+            ]
         )
         axes[row_index, 1].bar(
             x,
@@ -228,6 +273,17 @@ def main() -> None:
         axes[row_index, 1].set_ylabel("Valid pose coverage [%]")
         axes[row_index, 1].set_title(f"{difficulty}: coverage")
         axes[row_index, 1].grid(True, axis="y", alpha=0.3)
+    for axis in axes[:, 0]:
+        axis.text(
+            0.5,
+            0.5,
+            "Missing ATE means the fixed window\\ncontains multiple map frames",
+            transform=axis.transAxes,
+            ha="center",
+            va="center",
+            alpha=0.65,
+            fontsize=9,
+        )
     fig.suptitle("A Baseline: TartanAir P000, 3 seeds, 20.0-29.9 seconds")
     fig.tight_layout()
     fig.savefig(figure_root / "baseline_summary.png", dpi=170)
