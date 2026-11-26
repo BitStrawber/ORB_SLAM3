@@ -1,0 +1,18 @@
+dataset: TartanAirV2
+environment: OldTownSummer
+trajectory: P000
+start_frame: 200
+frame_count: 100
+time_window_seconds: [20.0, 29.9]
+camera_rate_hz: 10
+imu_rate_hz: 100
+modes:
+  - rgb
+  - rgb_imu
+  - rgbd_imu
+seeds: [0, 1, 2]
+alignments:
+  rgb: sim3
+  rgb_imu: se3
+  rgbd_imu: se3
+rpe_delta_frames: 10

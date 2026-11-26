@@ -1,0 +1,22 @@
+{
+  "alignment": "sim3",
+  "ate_mean": 0.01600632585218506,
+  "ate_median": 0.012518642943298807,
+  "ate_rmse": 0.0201703493994027,
+  "ate_std": 0.012273570287722201,
+  "evaluated_map_id": 0,
+  "evaluated_map_valid_rows": 98,
+  "evaluated_window_end": 29.899999618530273,
+  "evaluated_window_start": 20.200000762939453,
+  "input_frames": 100,
+  "lost_events": 0,
+  "matched_pose_frames": 98,
+  "mean_latency_ms": 44.49207386,
+  "p95_latency_ms": 75.19571635,
+  "rpe_delta_frames": 10,
+  "rpe_rotation_deg_rmse": 26.524412426777815,
+  "rpe_translation_rmse": 1.0695826210255925,
+  "status": "ok",
+  "valid_pose_frames": 98,
+  "valid_pose_ratio": 0.98
+}

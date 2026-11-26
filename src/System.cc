@@ -1324,6 +1324,13 @@ int System::GetTrackingState()
     return mTrackingState;
 }
 
+int System::GetCurrentMapId()
+{
+    unique_lock<mutex> lock(mMutexState);
+    Map* currentMap = mpAtlas->GetCurrentMap();
+    return currentMap ? static_cast<int>(currentMap->GetId()) : -1;
+}
+
 vector<MapPoint*> System::GetTrackedMapPoints()
 {
     unique_lock<mutex> lock(mMutexState);
