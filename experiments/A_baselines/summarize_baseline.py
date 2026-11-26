@@ -254,6 +254,17 @@ def main() -> None:
         axes[row_index, 0].set_ylabel("ATE RMSE [m]")
         axes[row_index, 0].set_title(f"{difficulty}: trajectory error")
         axes[row_index, 0].grid(True, axis="y", alpha=0.3)
+        if np.isnan(ate_means).any():
+            axes[row_index, 0].text(
+                0.5,
+                0.5,
+                "N/A: no single map covers the fixed window",
+                transform=axes[row_index, 0].transAxes,
+                ha="center",
+                va="center",
+                alpha=0.65,
+                fontsize=10,
+            )
 
         coverage_means = 100.0 * np.array(
             [
@@ -295,17 +306,6 @@ def main() -> None:
         axes[row_index, 1].set_ylabel("Valid pose coverage [%]")
         axes[row_index, 1].set_title(f"{difficulty}: coverage")
         axes[row_index, 1].grid(True, axis="y", alpha=0.3)
-    for axis in axes[:, 0]:
-        axis.text(
-            0.5,
-            0.5,
-            "Missing ATE means the fixed window\\ncontains multiple map frames",
-            transform=axis.transAxes,
-            ha="center",
-            va="center",
-            alpha=0.65,
-            fontsize=9,
-        )
     fig.suptitle("A Baseline: TartanAir P000, 3 seeds, 20.0-29.9 seconds")
     fig.tight_layout()
     fig.savefig(figure_root / "baseline_summary.png", dpi=170)

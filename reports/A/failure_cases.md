@@ -24,11 +24,21 @@ IMU is not or recently initialized
 Reseting active map
 ```
 
-The frozen easy/P000 window has 88.3% RGB+IMU coverage and a mean ATE of 1.421 m over
-three seeds. RGB-D+IMU reaches 98% coverage and 0.639 m ATE. Monocular inertial scale
-initialization remains the weakest easy-case component.
+The controlled easy/P000 window has 73.3% RGB+IMU coverage and 8.0 loss events. Two of
+three seeds produce a connected optimized trajectory with ATE 0.120 and 0.126 m; one
+seed has no usable keyframe trajectory. RGB-D+IMU reaches 98% coverage and 0.224 m ATE.
+Monocular inertial scale initialization remains the weakest easy-case component.
 
 ## Hard trajectory
 
 Hard P000 had substantially lower coverage than easy P000 in every mode. Mean coverage
-was 38.3% for RGB, 24.0% for RGB+IMU, and 61.0% for RGB-D+IMU. No failed run was removed.
+was 27.0% for RGB, 20.0% for RGB+IMU, and 58.0% for RGB-D+IMU. The fixed window crosses
+multiple map coordinate systems, so ATE is reported as N/A rather than concatenating
+incompatible trajectories. No failed run was removed.
+
+## Same-seed non-determinism
+
+A repeated easy/RGB+IMU run with the same seed still differed because ORB-SLAM3 uses
+internal worker threads. Math-library thread pools are fixed, but the full SLAM execution
+is not bitwise deterministic. Results must therefore use repeated seeds and report
+variability rather than a single selected run.
