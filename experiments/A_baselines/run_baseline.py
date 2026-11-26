@@ -26,46 +26,52 @@ def git_head(repo: Path) -> str:
         return "unknown"
 
 
-def materialize_orb_trajectory(
-    output: Path, settings: Path, mode: str
-) -> dict[str, str]:
-    raw_path = output / "trajectory_orb_raw.tum"
+def materialize_orb_trajectory(output: Path, settings: Path) -> dict[str, str]:
     primary_path = output / "trajectory_est.tum"
     if primary_path.exists():
         shutil.copy2(primary_path, output / "trajectory_frames.tum")
-    if not raw_path.exists() or raw_path.stat().st_size == 0:
-        return {"primary": "per_frame_body", "optimized": "unavailable_empty"}
-    rows = np.loadtxt(raw_path, ndmin=2)
-    if rows.size == 0:
-        return {"primary": "per_frame_body", "optimized": "unavailable_empty"}
-    if np.median(rows[:, 0]) > 1e6:
-        rows[:, 0] /= 1e9
-    if rows.shape[0] < 10:
-        return {"primary": "per_frame_body", "optimized": "unavailable_sparse"}
+    keyframe_path = output / "keyframe_trajectory.tum"
+    if not keyframe_path.exists() or keyframe_path.stat().st_size == 0:
+        primary_path.write_text("", encoding="utf-8")
+        return {
+            "primary": "unavailable_keyframe",
+            "optimized": "unavailable_empty_keyframe",
+        }
+    rows = np.loadtxt(keyframe_path, ndmin=2)
+    if rows.size == 0 or rows.shape[0] < 3:
+        primary_path.write_text("", encoding="utf-8")
+        return {
+            "primary": "unavailable_keyframe",
+            "optimized": "unavailable_sparse_keyframe",
+        }
     covariance_rank = np.linalg.matrix_rank(
         np.cov(rows[:, 1:4], rowvar=False)
     )
     if covariance_rank < 2:
-        return {"primary": "per_frame_body", "optimized": "unavailable_degenerate"}
+        primary_path.write_text("", encoding="utf-8")
+        return {
+            "primary": "unavailable_keyframe",
+            "optimized": "unavailable_degenerate_keyframe",
+        }
 
-    if mode == "rgb":
-        storage = cv2.FileStorage(str(settings), cv2.FILE_STORAGE_READ)
-        tbc = storage.getNode("IMU.T_b_c1").mat()
-        storage.release()
-        tcb_rotation = np.linalg.inv(tbc[:3, :3])
-        camera_rotation = Rotation.from_quat(rows[:, [4, 5, 6, 3]])
-        body_rotation = camera_rotation * Rotation.from_matrix(tcb_rotation)
-        rows[:, 3:7] = body_rotation.as_quat()[:, [3, 0, 1, 2]]
+    storage = cv2.FileStorage(str(settings), cv2.FILE_STORAGE_READ)
+    tbc = storage.getNode("IMU.T_b_c1").mat()
+    storage.release()
+    tcb_rotation = np.linalg.inv(tbc[:3, :3])
+    camera_rotation = Rotation.from_quat(rows[:, [4, 5, 6, 7]])
+    body_rotation = camera_rotation * Rotation.from_matrix(tcb_rotation)
+    rows[:, 3:7] = body_rotation.as_quat()[:, [3, 0, 1, 2]]
 
     np.savetxt(
-        output / "trajectory_optimized.tum",
+        primary_path,
         rows,
         fmt="%.17g",
         delimiter=" ",
     )
+    shutil.copy2(primary_path, output / "trajectory_optimized.tum")
     return {
-        "primary": "per_frame_body",
-        "optimized": "orb_save_largest_map",
+        "primary": "optimized_keyframe_body",
+        "optimized": "keyframe_body",
     }
 
 
@@ -151,7 +157,7 @@ def main() -> int:
     meta["finished_utc"] = datetime.now(timezone.utc).isoformat()
     meta["status"] = "ok" if return_code == 0 else "failed"
     trajectory_sources = materialize_orb_trajectory(
-        output, args.settings.resolve(), args.mode
+        output, args.settings.resolve()
     )
     meta["trajectory_source"] = trajectory_sources["primary"]
     meta["optimized_trajectory_source"] = trajectory_sources["optimized"]

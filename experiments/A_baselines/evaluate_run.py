@@ -96,7 +96,10 @@ def main() -> int:
         "--alignment", required=True, choices=["sim3", "se3"]
     )
     parser.add_argument("--max-time-diff", default=0.02, type=float)
-    parser.add_argument("--rpe-delta-frames", default=10, type=int)
+    parser.add_argument("--rpe-delta", default=1.0, type=float)
+    parser.add_argument(
+        "--rpe-unit", choices=["frames", "meters"], default="meters"
+    )
     parser.add_argument("--plot", type=Path)
     parser.add_argument(
         "--map-segment", choices=["fixed", "largest", "all"], default="fixed"
@@ -105,7 +108,8 @@ def main() -> int:
 
     result: dict[str, object] = {
         "alignment": args.alignment,
-        "rpe_delta_frames": args.rpe_delta_frames,
+        "rpe_delta": args.rpe_delta,
+        "rpe_delta_unit": args.rpe_unit,
     }
     try:
         result.update(tracking_summary(args.tracking))
@@ -174,16 +178,20 @@ def main() -> int:
 
             rpe_translation = metrics.RPE(
                 metrics.PoseRelation.translation_part,
-                args.rpe_delta_frames,
-                metrics.Unit.frames,
+                args.rpe_delta,
+                metrics.Unit.meters
+                if args.rpe_unit == "meters"
+                else metrics.Unit.frames,
             )
             rpe_translation.process_data((reference, estimated))
             translation_result = rpe_translation.get_result()
 
             rpe_rotation = metrics.RPE(
                 metrics.PoseRelation.rotation_angle_deg,
-                args.rpe_delta_frames,
-                metrics.Unit.frames,
+                args.rpe_delta,
+                metrics.Unit.meters
+                if args.rpe_unit == "meters"
+                else metrics.Unit.frames,
             )
             rpe_rotation.process_data((reference, estimated))
             rotation_result = rpe_rotation.get_result()

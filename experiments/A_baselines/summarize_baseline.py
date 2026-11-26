@@ -110,7 +110,18 @@ def main() -> None:
                 for row in rows
                 if row["difficulty"] == difficulty and row["mode"] == mode
             ]
-            summary = {"difficulty": difficulty, "mode": mode, "seed_count": len(selected)}
+            summary = {
+                "difficulty": difficulty,
+                "mode": mode,
+                "seed_count": len(selected),
+                "metric_ok_count": sum(
+                    row.get("metric_status") == "ok" for row in selected
+                ),
+                "metric_invalid_count": sum(
+                    row.get("metric_status") == "invalid_map_discontinuity"
+                    for row in selected
+                ),
+            }
             for field in [
                 "ate_rmse_m",
                 "rpe_translation_rmse_m",
@@ -129,6 +140,17 @@ def main() -> None:
                     ],
                     dtype=float,
                 )
+                if field in {
+                    "ate_rmse_m",
+                    "rpe_translation_rmse_m",
+                    "rpe_rotation_rmse_deg",
+                } and len(values) < 2:
+                    summary[f"{field}_mean"] = None
+                    summary[f"{field}_std"] = None
+                    summary[f"{field}_median"] = None
+                    summary[f"{field}_min"] = None
+                    summary[f"{field}_max"] = None
+                    continue
                 summary[f"{field}_mean"] = float(values.mean()) if len(values) else None
                 summary[f"{field}_std"] = (
                     float(values.std(ddof=1)) if len(values) > 1 else 0.0

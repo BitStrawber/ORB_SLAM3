@@ -15,4 +15,13 @@ alignments:
   rgb: sim3
   rgb_imu: se3
   rgbd_imu: se3
-rpe_delta_frames: 10
+rpe_delta: 1.0
+rpe_delta_unit: meters
+trajectory_source: per_frame_body
+optimized_trajectory: diagnostic_only
+map_policy: fixed_window_requires_single_map
+invalid_map_policy: ate_rpe_na
+thread_environment:
+  OMP_NUM_THREADS: 1
+  OPENBLAS_NUM_THREADS: 1
+  MKL_NUM_THREADS: 1
