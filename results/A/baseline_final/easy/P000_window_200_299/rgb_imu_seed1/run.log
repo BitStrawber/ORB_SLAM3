@@ -61,66 +61,12 @@ LM: Reset free the mutex
 LM: Active map reset, Done!!!
 mnFirstFrameId = 2
 mnInitialFrameId = 0
-20 Frames set to lost
-First KF:8; Map init KF:0
-New Map created with 279 points
-Fail to track local map!
-IMU is not or recently initialized. Reseting active map...
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 24
-mnInitialFrameId = 21
-38 Frames set to lost
-First KF:15; Map init KF:8
-New Map created with 411 points
-Fail to track local map!
-IMU is not or recently initialized. Reseting active map...
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 44
-mnInitialFrameId = 41
-43 Frames set to lost
-First KF:18; Map init KF:15
-New Map created with 423 points
-Fail to track local map!
-IMU is not or recently initialized. Reseting active map...
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 50
-mnInitialFrameId = 48
-60 Frames set to lost
-First KF:25; Map init KF:18
-New Map created with 355 points
-Fail to track local map!
-IMU is not or recently initialized. Reseting active map...
-SYSTEM-> Reseting active map in monocular case
-LM: Active map reset recieved
-LM: Active map reset, waiting...
-LM: Reseting current map in Local Mapping...
-LM: End reseting Local Mapping...
-LM: Reset free the mutex
-LM: Active map reset, Done!!!
-mnFirstFrameId = 69
-mnInitialFrameId = 66
-78 Frames set to lost
-First KF:32; Map init KF:25
-New Map created with 338 points
+18 Frames set to lost
+First KF:7; Map init KF:0
+New Map created with 257 points
+start VIBA 1
+end VIBA 1
 Shutdown
 
 Saving keyframe trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_imu_seed1/keyframe_trajectory.tum ...
-frames=100 valid_poses=85 mode=rgb_imu seed=1
+frames=100 valid_poses=94 mode=rgb_imu seed=1

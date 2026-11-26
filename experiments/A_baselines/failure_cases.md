@@ -24,11 +24,11 @@ IMU is not or recently initialized
 Reseting active map
 ```
 
-The frozen easy/P000 window has 87.7% RGB+IMU coverage and a mean ATE of 1.684 m over
-three seeds. RGB-D+IMU reaches 98% coverage and 0.652 m ATE. Monocular inertial scale
+The frozen easy/P000 window has 88.3% RGB+IMU coverage and a mean ATE of 1.421 m over
+three seeds. RGB-D+IMU reaches 98% coverage and 0.639 m ATE. Monocular inertial scale
 initialization remains the weakest easy-case component.
 
 ## Hard trajectory
 
-Hard P000 had substantially lower coverage than easy P000 in every mode. RGB+IMU had
-the lowest coverage and the most loss transitions. No failed run was removed.
+Hard P000 had substantially lower coverage than easy P000 in every mode. Mean coverage
+was 38.3% for RGB, 24.0% for RGB+IMU, and 61.0% for RGB-D+IMU. No failed run was removed.

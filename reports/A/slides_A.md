@@ -21,12 +21,12 @@
 
 Use `results/A/figures/baseline_summary.png` and these values:
 
-- Easy RGB: 0.020 m ATE, 98% coverage.
-- Easy RGB+IMU: 1.684 m ATE, 87.7% coverage.
-- Easy RGB-D+IMU: 0.652 m ATE, 98% coverage.
-- Hard RGB: 1.151 m ATE, 41% coverage.
-- Hard RGB+IMU: 5.013 m ATE, 24.3% coverage.
-- Hard RGB-D+IMU: 5.249 m ATE, 59.7% coverage.
+- Easy RGB: 0.028 m ATE, 98% coverage.
+- Easy RGB+IMU: 1.421 m ATE, 88.3% coverage.
+- Easy RGB-D+IMU: 0.639 m ATE, 98% coverage.
+- Hard RGB: 0.965 m mean map-segment ATE, 38.3% coverage.
+- Hard RGB+IMU: 4.763 m ATE, 24% coverage.
+- Hard RGB-D+IMU: 5.241 m ATE, 61% coverage.
 
 All values are mean over three seeds.
 
