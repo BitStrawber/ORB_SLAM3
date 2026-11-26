@@ -1,19 +1,25 @@
-# A Baseline v0
+# A Baseline
 
 ## Frozen experiment
 
 - Dataset: TartanAir V2
 - Environment: `OldTownSummer`
-- Easy trajectory: `Data_easy/P000`
-- Evaluation window: frames 200-299, 20.0-29.9 seconds at 10 Hz
 - Modes: `rgb`, `rgb_imu`, `rgbd_imu`
 - Seeds: `0`, `1`, `2`
 - Camera: pinhole, 640x640, `fx=fy=320`, `cx=cy=320`, zero distortion
 - IMU: 100 Hz, aligned with `lcam_front`
 
-The window is intentionally short because longer windows cross ORB-SLAM3 map resets,
-which creates discontinuous coordinate frames. The window and the resulting failure
-rate are part of the frozen experiment definition.
+The experiment matrix is:
+
+| Role | Sequence | Frames | Interval | Seeds |
+|---|---|---:|---|---|
+| Primary | `Data_easy/P000` | 200-299 | 20.0-29.9 s | 0, 1, 2 |
+| Holdout | `Data_easy/P002` | 200-299 | 20.0-29.9 s | 0, 1, 2 |
+| Hard robustness | `Data_hard/P001` | 100-199 | 10.0-19.9 s | 0, 1, 2 |
+
+The windows are intentionally short because longer hard windows cross ORB-SLAM3 map
+resets, which creates discontinuous coordinate frames. The resulting failure rate is
+part of the experiment result.
 
 The camera-to-IMU transform is the fixed optical-to-NED axis permutation:
 
@@ -34,6 +40,17 @@ valid tracking frames belong to one map; otherwise they are marked unavailable. 
 OpenBLAS, and MKL are fixed to one thread. RPE uses a 1 m interval. The seed is reapplied
 after ORB-SLAM3 construction because the TwoViewReconstruction constructor seeds its own
 RNG.
+
+Hard full-window accuracy is not reported as a continuous trajectory when maps change.
+Instead, hard results use two explicit levels:
+
+1. Robustness over all 100 frames: coverage, loss events, map switches and latency.
+2. Conditional accuracy over one preselected common single-map interval,
+   `12.9-14.9 s`, using the per-frame body trajectory for all modes. This interval was
+   selected only from map continuity and coverage, before inspecting ATE/RPE.
+
+The hard conditional result must always be reported with valid-frame counts. It is not
+interchangeable with the full-sequence hard ATE.
 
 ## Environment
 
@@ -82,6 +99,9 @@ python "${REPO_ROOT}/experiments/A_baselines/prepare_sequence.py" \
   --output "${REPO_ROOT}/results/A/inputs_final/OldTownSummer/easy/P000_2p0s_9p9s"
 ```
 
+The same command supports the P002 holdout and hard P001 case by changing
+`--sequence-root`, `--start-frame`, and `--output`.
+
 ## Run one configuration
 
 ```bash
@@ -117,6 +137,19 @@ python "${REPO_ROOT}/experiments/A_baselines/evaluate_run.py" \
   --plot RUN/trajectory_overlay.png
 ```
 
+## Full reproduction
+
+The full three-sequence matrix, hard common-window evaluation and result summaries are
+reproduced with:
+
+```bash
+bash "${REPO_ROOT}/experiments/A_baselines/reproduce_baseline_v2.sh"
+```
+
+`select_hard_window.py` is the audit utility used to find a common hard interval from
+tracking validity and map continuity only. Its output is not used to choose a window by
+the resulting ATE.
+
 ## Known results
 
 The frozen handoff results are in:
@@ -124,14 +157,33 @@ The frozen handoff results are in:
 ```text
 results/A/baseline_metrics.csv
 results/A/baseline_metrics.json
-results/A/figures/baseline_summary.png
-results/A/baseline_final/
 results/A/baseline_aggregate.csv
 results/A/baseline_aggregate.json
 results/A/validation_metrics.csv
 results/A/validation_metrics.json
+results/A/validation_aggregate.csv
+results/A/validation_aggregate.json
+results/A/hard_metrics.csv
+results/A/hard_metrics.json
+results/A/hard_aggregate.csv
+results/A/hard_aggregate.json
+results/A/hard_common_metrics.csv
+results/A/hard_common_metrics.json
+results/A/hard_common_aggregate.csv
+results/A/hard_common_aggregate.json
+results/A/hard_map_segments.csv
+results/A/hard_map_segments.json
+results/A/hard_map_segment_summary.csv
+results/A/hard_map_segment_summary.json
+results/A/figures/baseline_summary.png
+results/A/figures/validation_summary.png
+results/A/figures/hard_robustness.png
+results/A/figures/hard_common_summary.png
+results/A/figures/hard_map_segments.png
+results/A/figures/hard_rgb_overlay.png
+results/A/figures/hard_rgb_imu_overlay.png
+results/A/figures/hard_rgbd_imu_overlay.png
 ```
 
-Some easy fusion runs still lose tracking. This is reported as an actual baseline
-result and must not be replaced by successful-only segments. The PR reports the easy
-P000 matrix and the P002 easy holdout only.
+Failed initialization and tracking runs remain in the CSV/JSON outputs. They are not
+replaced by successful-only segments or by the largest map.

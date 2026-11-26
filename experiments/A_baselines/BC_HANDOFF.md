@@ -60,15 +60,22 @@ to `run_baseline.py`.
   `invalid_map_discontinuity`, coverage and lost events remain available but ATE
   must be reported as `NA`.
 - Failed initialization must be preserved as a failed run.
+- Hard full-window results may contain multiple maps. Report coverage, loss events,
+  map switches and latency for the full window; do not concatenate map coordinates.
+- The frozen hard conditional interval is `12.9-14.9 s` within the P001 100-frame
+  window. It uses the per-frame body trajectory for all modes and RPE over 5 frames.
 
 ## Minimum handoff smoke test
 
-For the frozen easy handoff:
+For the frozen A handoff:
 
 1. Run clean `rgb`.
 2. Run one B-corrupted `rgb`.
 3. Run clean `rgb_imu`.
 4. Run one C-corrupted `rgbd_imu`.
+
+Run this smoke test first on easy P000 and then on the hard P001 window. The hard test
+must retain failed runs instead of forcing a successful single-map segment.
 
 All four must produce a `metrics.json`. A low metric may be a valid result; silently
 deleting failed frames or runs is not allowed.

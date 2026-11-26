@@ -14,30 +14,41 @@ python_bin="${A_CONDA_ENV}/bin/python"
 runner="${root}/build/A_baselines/run_tartanair"
 vocab="${REPO_ROOT}/Vocabulary/ORBvoc.txt"
 settings="${REPO_ROOT}/configs/A/tartanair.yaml"
-output_root="${A_OUTPUT_ROOT:-${REPO_ROOT}/results/A}"
 data_root="${TARTANAIR_ROOT:-${root}/data/TartanAirV2}"
 
-for difficulty in easy; do
-  sequence="${data_root}/OldTownSummer/Data_${difficulty}/P000"
-  inputs="${output_root}/inputs_final/OldTownSummer/${difficulty}/P000_2p0s_9p9s"
+prepare_case() {
+  local difficulty="$1"
+  local trajectory="$2"
+  local start_frame="$3"
+  local inputs="$4"
+  local sequence="${data_root}/OldTownSummer/Data_${difficulty}/${trajectory}"
 
   if [[ ! -f "${inputs}/manifest.csv" ]]; then
-    "${python_bin}" "${root}/experiments/A_baselines/prepare_sequence.py" \
+    "${python_bin}" "${REPO_ROOT}/experiments/A_baselines/prepare_sequence.py" \
       --sequence-root "${sequence}" \
-      --start-frame 200 \
+      --start-frame "${start_frame}" \
       --num-frames 100 \
       --output "${inputs}"
   fi
+}
 
+run_case() {
+  local difficulty="$1"
+  local trajectory="$2"
+  local start_frame="$3"
+  local inputs="$4"
+  local run_root="$5"
+
+  prepare_case "${difficulty}" "${trajectory}" "${start_frame}" "${inputs}"
   for mode in rgb rgb_imu rgbd_imu; do
     for seed in 0 1 2; do
-      run_dir="${output_root}/baseline_final/${difficulty}/P000_window_200_299/${mode}_seed${seed}"
+      local run_dir="${run_root}/${mode}_seed${seed}"
       if [[ -f "${run_dir}/metrics.json" ]]; then
-        echo "SKIP ${difficulty} ${mode} ${seed}"
+        echo "SKIP ${trajectory} ${difficulty} ${mode} ${seed}"
         continue
       fi
 
-      "${python_bin}" "${root}/experiments/A_baselines/run_baseline.py" \
+      "${python_bin}" "${REPO_ROOT}/experiments/A_baselines/run_baseline.py" \
         --binary "${runner}" \
         --vocab "${vocab}" \
         --settings "${settings}" \
@@ -46,32 +57,51 @@ for difficulty in easy; do
         --imu "${inputs}/imu.csv" \
         --output "${run_dir}" \
         --seed "${seed}" \
-        --orb-root "${root}/repos/ORB_SLAM3"
-      run_status=$?
-      echo "RUN ${difficulty} ${mode} ${seed}: exit=${run_status}"
+        --orb-root "${REPO_ROOT}"
+      local run_status=$?
+      echo "RUN ${trajectory} ${difficulty} ${mode} ${seed}: exit=${run_status}"
       if [[ ${run_status} -ne 0 && ! -s "${run_dir}/trajectory_est.tum" ]]; then
         printf '{"status":"failed","error":"runner exit %s and no trajectory"}\n' \
           "${run_status}" > "${run_dir}/metrics.json"
         continue
       fi
 
+      local alignment="se3"
       if [[ "${mode}" == "rgb" ]]; then
         alignment="sim3"
-      else
-        alignment="se3"
       fi
-
-      "${python_bin}" "${root}/experiments/A_baselines/evaluate_run.py" \
+      "${python_bin}" "${REPO_ROOT}/experiments/A_baselines/evaluate_run.py" \
         --estimated "${run_dir}/trajectory_est.tum" \
         --reference "${inputs}/trajectory_gt.tum" \
         --tracking "${run_dir}/tracking.csv" \
         --output "${run_dir}/metrics.json" \
         --alignment "${alignment}" \
         --plot "${run_dir}/trajectory_overlay.png"
-      echo "EVAL ${difficulty} ${mode} ${seed}: exit=$?"
+      echo "EVAL ${trajectory} ${difficulty} ${mode} ${seed}: exit=$?"
     done
   done
-done
+}
 
+run_case \
+  easy P000 200 \
+  "${REPO_ROOT}/results/A/inputs_final/OldTownSummer/easy/P000_2p0s_9p9s" \
+  "${REPO_ROOT}/results/A/baseline_final/easy/P000_window_200_299"
+
+run_case \
+  easy P002 200 \
+  "${REPO_ROOT}/results/A/validation/P002/easy/window_200_299" \
+  "${REPO_ROOT}/results/A/validation/P002/easy"
+
+# The hard interval start is selected from map continuity and coverage only.
+# Numerical accuracy is evaluated separately on the common 12.9-14.9 s window.
+run_case \
+  hard P001 100 \
+  "${REPO_ROOT}/results/A/inputs_final/OldTownSummer/hard/P001_start100" \
+  "${REPO_ROOT}/results/A/baseline_final/hard/P001_window_start100"
+
+"${python_bin}" "${REPO_ROOT}/experiments/A_baselines/evaluate_hard_common.py" \
+  --root "${REPO_ROOT}"
+"${python_bin}" "${REPO_ROOT}/experiments/A_baselines/evaluate_map_segments.py" \
+  --root "${REPO_ROOT}"
 "${python_bin}" "${REPO_ROOT}/experiments/A_baselines/summarize_baseline.py" \
   --root "${REPO_ROOT}"

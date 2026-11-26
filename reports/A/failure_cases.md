@@ -29,6 +29,21 @@ three seeds produce a connected optimized trajectory with ATE 0.120 and 0.126 m;
 seed has no usable keyframe trajectory. RGB-D+IMU reaches 98% coverage and 0.224 m ATE.
 Monocular inertial scale initialization remains the weakest easy-case component.
 
+## Hard map continuity and initialization failures
+
+Hard P001 produced repeated messages of the form:
+
+```text
+IMU is not or recently initialized. Reseting active map...
+Fail to track local map!
+```
+
+RGB-D+IMU retained 60.0% coverage, RGB retained 50.3% and RGB+IMU retained 28.0%.
+RGB executed a map switch in every seed; the inertial modes more often emitted invalid
+poses without creating a usable optimized keyframe segment. A new ORB-SLAM3 map has its
+own local world frame, so the full hard window is evaluated as robustness rather than a
+continuous ATE trajectory.
+
 ## Same-seed non-determinism
 
 A repeated easy/RGB+IMU run with the same seed still differed because ORB-SLAM3 uses

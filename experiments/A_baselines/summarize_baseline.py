@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Summarize Baseline v2 runs and create comparison figures."""
+"""Summarize A baseline and holdout runs and create comparison figures."""
 
 from __future__ import annotations
 
@@ -17,9 +17,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-MODES = ["rgb", "rgb_imu", "rgbd_imu"]
-DIFFICULTIES = ["easy"]
-SEEDS = [0, 1, 2]
+MODES = ("rgb", "rgb_imu", "rgbd_imu")
+SEEDS = (0, 1, 2)
+COLORS = ("#4C78A8", "#F58518", "#54A24B")
+METRIC_FIELDS = (
+    "ate_rmse_m",
+    "rpe_translation_rmse_m",
+    "rpe_rotation_rmse_deg",
+    "orientation_ape_rmse_deg",
+    "valid_pose_ratio",
+    "lost_events",
+    "map_switches",
+    "longest_loss_frames",
+    "mean_latency_ms",
+    "p95_latency_ms",
+)
+ERROR_FIELDS = {
+    "ate_rmse_m",
+    "rpe_translation_rmse_m",
+    "rpe_rotation_rmse_deg",
+}
 
 
 def sha256(path: Path) -> str:
@@ -28,6 +45,251 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def tracking_metrics(path: Path) -> dict[str, object]:
+    with path.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    valid_rows = [
+        row
+        for row in rows
+        if row.get("valid") == "1" and int(row.get("map_id", "-1")) >= 0
+    ]
+    map_ids = sorted({int(row["map_id"]) for row in valid_rows})
+    map_switches = 0
+    previous_map = None
+    current_loss_run = 0
+    longest_loss_run = 0
+    for row in rows:
+        if row.get("valid") == "1" and int(row.get("map_id", "-1")) >= 0:
+            current_map = int(row["map_id"])
+            if previous_map is not None and current_map != previous_map:
+                map_switches += 1
+            previous_map = current_map
+            current_loss_run = 0
+        else:
+            current_loss_run += 1
+            longest_loss_run = max(longest_loss_run, current_loss_run)
+    return {
+        "map_ids_in_valid_tracking": map_ids,
+        "unique_map_count": len(map_ids),
+        "map_switches": map_switches,
+        "longest_loss_frames": longest_loss_run,
+    }
+
+
+def write_csv(path: Path, rows: list[dict[str, object]]) -> None:
+    fieldnames = []
+    for row in rows:
+        for field in row:
+            if field not in fieldnames:
+                fieldnames.append(field)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(
+            handle, fieldnames=fieldnames, lineterminator="\n"
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def load_run(
+    run_dir: Path,
+    *,
+    trajectory: str,
+    difficulty: str,
+    mode: str,
+    seed: int,
+    window: str,
+) -> dict[str, object]:
+    metrics = json.loads(
+        (run_dir / "metrics.json").read_text(encoding="utf-8")
+    )
+    meta_path = run_dir / "run_meta.json"
+    meta = (
+        json.loads(meta_path.read_text(encoding="utf-8"))
+        if meta_path.exists()
+        else {}
+    )
+    settings = run_dir / "settings_snapshot.yaml"
+    tracking = tracking_metrics(run_dir / "tracking.csv")
+    return {
+        "dataset": "TartanAirV2",
+        "environment": "OldTownSummer",
+        "trajectory": trajectory,
+        "difficulty": difficulty,
+        "window": window,
+        "mode": mode,
+        "seed": seed,
+        "run_status": meta.get("status", "unknown"),
+        "metric_status": metrics.get("status"),
+        "ate_rmse_m": metrics.get("ate_rmse"),
+        "rpe_translation_rmse_m": metrics.get("rpe_translation_rmse"),
+        "rpe_rotation_rmse_deg": metrics.get("rpe_rotation_deg_rmse"),
+        "orientation_ape_rmse_deg": metrics.get(
+            "orientation_ape_rmse_deg"
+        ),
+        "valid_pose_frames": metrics.get("valid_pose_frames"),
+        "valid_pose_ratio": metrics.get("valid_pose_ratio"),
+        "lost_events": metrics.get("lost_events"),
+        "matched_pose_frames": metrics.get("matched_pose_frames"),
+        **tracking,
+        "mean_latency_ms": metrics.get("mean_latency_ms"),
+        "p95_latency_ms": metrics.get("p95_latency_ms"),
+        "alignment": metrics.get("alignment"),
+        "evaluated_map_id": metrics.get("evaluated_map_id"),
+        "evaluated_map_valid_rows": metrics.get(
+            "evaluated_map_valid_rows"
+        ),
+        "evaluated_window_start_s": metrics.get("evaluated_window_start"),
+        "evaluated_window_end_s": metrics.get("evaluated_window_end"),
+        "git_commit": meta.get("git_commit", "unknown"),
+        "config_sha256": sha256(settings) if settings.exists() else None,
+        "trajectory_source": meta.get("trajectory_source"),
+        "optimized_trajectory_source": meta.get(
+            "optimized_trajectory_source"
+        ),
+    }
+
+
+def aggregate_rows(rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    aggregate = []
+    for mode in MODES:
+        selected = [row for row in rows if row["mode"] == mode]
+        valid_metrics = [
+            row for row in selected if row.get("metric_status") == "ok"
+        ]
+        summary = {
+            "difficulty": selected[0]["difficulty"],
+            "trajectory": selected[0]["trajectory"],
+            "mode": mode,
+            "seed_count": len(selected),
+            "metric_ok_count": len(valid_metrics),
+        }
+        for field in METRIC_FIELDS:
+            source = valid_metrics if field in ERROR_FIELDS else selected
+            values = np.asarray(
+                [
+                    float(row[field])
+                    for row in source
+                    if row.get(field) is not None
+                ],
+                dtype=float,
+            )
+            summary[f"{field}_mean"] = (
+                float(values.mean()) if len(values) else None
+            )
+            summary[f"{field}_std"] = (
+                float(values.std(ddof=1)) if len(values) > 1 else 0.0
+            )
+        aggregate.append(summary)
+    return aggregate
+
+
+def plot_summary(
+    aggregate: list[dict[str, object]],
+    *,
+    title: str,
+    output: Path,
+) -> None:
+    figure, axes = plt.subplots(2, 3, figsize=(15, 8))
+    panels = (
+        ("ate_rmse_m", "ATE RMSE [m]"),
+        ("rpe_translation_rmse_m", "RPE translation [m]"),
+        ("rpe_rotation_rmse_deg", "RPE rotation [deg]"),
+        ("valid_pose_ratio", "Valid pose coverage"),
+        ("mean_latency_ms", "Mean latency [ms]"),
+        ("p95_latency_ms", "P95 latency [ms]"),
+    )
+    x = np.arange(len(MODES))
+    for axis, (field, label) in zip(axes.flat, panels, strict=True):
+        means = np.asarray(
+            [
+                row[f"{field}_mean"]
+                if row[f"{field}_mean"] is not None
+                else np.nan
+                for row in aggregate
+            ],
+            dtype=float,
+        )
+        if field == "valid_pose_ratio":
+            means *= 100.0
+            label = "Valid pose coverage [%]"
+        stds = np.asarray(
+            [
+                row[f"{field}_std"]
+                if row[f"{field}_std"] is not None
+                else 0.0
+                for row in aggregate
+            ],
+            dtype=float,
+        )
+        if field == "valid_pose_ratio":
+            stds *= 100.0
+        errors = np.vstack(
+            [
+                np.where(np.isnan(means), 0.0, np.minimum(means, stds)),
+                stds,
+            ]
+        )
+        axis.bar(x, means, yerr=errors, capsize=4, color=COLORS)
+        axis.set_xticks(x, MODES)
+        axis.set_ylabel(label)
+        axis.grid(True, axis="y", alpha=0.3)
+        if field == "valid_pose_ratio":
+            axis.set_ylim(0, 105)
+    figure.suptitle(title)
+    figure.tight_layout()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output, dpi=170)
+    plt.close(figure)
+
+
+def plot_hard_robustness(
+    aggregate: list[dict[str, object]], output: Path
+) -> None:
+    figure, axes = plt.subplots(2, 2, figsize=(12, 8))
+    panels = (
+        ("valid_pose_ratio", "Valid pose coverage [%]", 100.0),
+        ("lost_events", "Loss events", 1.0),
+        ("map_switches", "Map switches", 1.0),
+        ("p95_latency_ms", "P95 latency [ms]", 1.0),
+    )
+    x = np.arange(len(MODES))
+    for axis, (field, label, scale) in zip(axes.flat, panels, strict=True):
+        means = np.asarray(
+            [
+                row[f"{field}_mean"]
+                if row[f"{field}_mean"] is not None
+                else np.nan
+                for row in aggregate
+            ],
+            dtype=float,
+        ) * scale
+        stds = np.asarray(
+            [
+                row[f"{field}_std"]
+                if row[f"{field}_std"] is not None
+                else 0.0
+                for row in aggregate
+            ],
+            dtype=float,
+        ) * scale
+        errors = np.vstack(
+            [
+                np.where(np.isnan(means), 0.0, np.minimum(means, stds)),
+                stds,
+            ]
+        )
+        axis.bar(x, means, yerr=errors, capsize=4, color=COLORS)
+        axis.set_xticks(x, MODES)
+        axis.set_ylabel(label)
+        axis.grid(True, axis="y", alpha=0.3)
+        if field == "valid_pose_ratio":
+            axis.set_ylim(0, 105)
+    figure.suptitle("A hard P001 robustness, 3 seeds, 10.0-19.9 s")
+    figure.tight_layout()
+    figure.savefig(output, dpi=170)
+    plt.close(figure)
 
 
 def main() -> None:
@@ -41,298 +303,112 @@ def main() -> None:
     )
     args = parser.parse_args()
     root = args.root.resolve()
-    run_root = root / "results/A/baseline_final"
     result_root = root / "results/A"
     figure_root = result_root / "figures"
     figure_root.mkdir(parents=True, exist_ok=True)
 
-    rows = []
-    for difficulty in DIFFICULTIES:
-        for mode in MODES:
-            for seed in SEEDS:
-                run_dir = (
-                    run_root
-                    / difficulty
-                    / "P000_window_200_299"
-                    / f"{mode}_seed{seed}"
+    baseline_rows = []
+    baseline_root = root / "results/A/baseline_final/easy/P000_window_200_299"
+    for mode in MODES:
+        for seed in SEEDS:
+            baseline_rows.append(
+                load_run(
+                    baseline_root / f"{mode}_seed{seed}",
+                    trajectory="P000",
+                    difficulty="easy",
+                    mode=mode,
+                    seed=seed,
+                    window="20.0-29.9s",
                 )
-                metrics = json.loads((run_dir / "metrics.json").read_text(encoding="utf-8"))
-                meta_path = run_dir / "run_meta.json"
-                meta = (
-                    json.loads(meta_path.read_text(encoding="utf-8"))
-                    if meta_path.exists()
-                    else {}
-                )
-                rows.append(
-                    {
-                        "dataset": "TartanAirV2",
-                        "environment": "OldTownSummer",
-                        "trajectory": "P000",
-                        "window": "20.0-29.9s",
-                        "difficulty": difficulty,
-                        "mode": mode,
-                        "seed": seed,
-                        "run_status": meta.get("status", "unknown"),
-                        "metric_status": metrics.get("status"),
-                        "ate_rmse_m": metrics.get("ate_rmse"),
-                        "rpe_translation_rmse_m": metrics.get("rpe_translation_rmse"),
-                        "rpe_rotation_rmse_deg": metrics.get("rpe_rotation_deg_rmse"),
-                        "orientation_ape_rmse_deg": metrics.get(
-                            "orientation_ape_rmse_deg"
-                        ),
-                        "valid_pose_ratio": metrics.get("valid_pose_ratio"),
-                        "lost_events": metrics.get("lost_events"),
-                        "mean_latency_ms": metrics.get("mean_latency_ms"),
-                        "p95_latency_ms": metrics.get("p95_latency_ms"),
-                        "alignment": metrics.get("alignment"),
-                        "evaluated_map_id": metrics.get("evaluated_map_id"),
-                        "evaluated_map_valid_rows": metrics.get(
-                            "evaluated_map_valid_rows"
-                        ),
-                        "evaluated_window_start_s": metrics.get(
-                            "evaluated_window_start"
-                        ),
-                        "evaluated_window_end_s": metrics.get(
-                            "evaluated_window_end"
-                        ),
-                        "git_commit": meta.get("git_commit", "unknown"),
-                        "config_sha256": sha256(run_dir / "settings_snapshot.yaml"),
-                        "trajectory_source": meta.get("trajectory_source"),
-                        "optimized_trajectory_source": meta.get(
-                            "optimized_trajectory_source"
-                        ),
-                    }
-                )
-
-    csv_path = result_root / "baseline_metrics.csv"
-    with csv_path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(
-            handle, fieldnames=list(rows[0]), lineterminator="\n"
-        )
-        writer.writeheader()
-        writer.writerows(rows)
+            )
+    baseline_aggregate = aggregate_rows(baseline_rows)
+    write_csv(result_root / "baseline_metrics.csv", baseline_rows)
     (result_root / "baseline_metrics.json").write_text(
-        json.dumps(rows, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        json.dumps(baseline_rows, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
-
-    aggregate = []
-    for difficulty in DIFFICULTIES:
-        for mode in MODES:
-            selected = [
-                row
-                for row in rows
-                if row["difficulty"] == difficulty and row["mode"] == mode
-            ]
-            summary = {
-                "difficulty": difficulty,
-                "mode": mode,
-                "seed_count": len(selected),
-                "metric_ok_count": sum(
-                    row.get("metric_status") == "ok" for row in selected
-                ),
-                "metric_invalid_count": sum(
-                    row.get("metric_status") == "invalid_map_discontinuity"
-                    for row in selected
-                ),
-            }
-            for field in [
-                "ate_rmse_m",
-                "rpe_translation_rmse_m",
-                "rpe_rotation_rmse_deg",
-                "orientation_ape_rmse_deg",
-                "valid_pose_ratio",
-                "lost_events",
-                "mean_latency_ms",
-                "p95_latency_ms",
-            ]:
-                values = np.array(
-                    [
-                        float(row[field])
-                        for row in selected
-                        if row.get(field) is not None
-                    ],
-                    dtype=float,
-                )
-                if field in {
-                    "ate_rmse_m",
-                    "rpe_translation_rmse_m",
-                    "rpe_rotation_rmse_deg",
-                } and len(values) < 2:
-                    summary[f"{field}_mean"] = None
-                    summary[f"{field}_std"] = None
-                    summary[f"{field}_median"] = None
-                    summary[f"{field}_min"] = None
-                    summary[f"{field}_max"] = None
-                    continue
-                summary[f"{field}_mean"] = float(values.mean()) if len(values) else None
-                summary[f"{field}_std"] = (
-                    float(values.std(ddof=1)) if len(values) > 1 else 0.0
-                )
-                summary[f"{field}_median"] = (
-                    float(np.median(values)) if len(values) else None
-                )
-                summary[f"{field}_min"] = (
-                    float(values.min()) if len(values) else None
-                )
-                summary[f"{field}_max"] = (
-                    float(values.max()) if len(values) else None
-                )
-            aggregate.append(summary)
-    aggregate_json = result_root / "baseline_aggregate.json"
-    aggregate_json.write_text(
-        json.dumps(aggregate, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    write_csv(result_root / "baseline_aggregate.csv", baseline_aggregate)
+    (result_root / "baseline_aggregate.json").write_text(
+        json.dumps(baseline_aggregate, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
-    aggregate_csv = result_root / "baseline_aggregate.csv"
-    with aggregate_csv.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(
-            handle, fieldnames=list(aggregate[0]), lineterminator="\n"
-        )
-        writer.writeheader()
-        writer.writerows(aggregate)
+    plot_summary(
+        baseline_aggregate,
+        title="A Baseline: TartanAir easy P000, 3 seeds, 20.0-29.9 s",
+        output=figure_root / "baseline_summary.png",
+    )
 
     validation_rows = []
-    validation_root = result_root / "validation/P002"
-    if validation_root.exists():
-        for difficulty in DIFFICULTIES:
-            for mode in MODES:
-                metrics_path = validation_root / difficulty / mode / "metrics.json"
-                if not metrics_path.exists():
-                    continue
-                metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
-                validation_rows.append(
-                    {
-                        "dataset": "TartanAirV2",
-                        "environment": "OldTownSummer",
-                        "trajectory": "P002",
-                        "window": "20.0-29.9s",
-                        "difficulty": difficulty,
-                        "mode": mode,
-                        "seed": 0,
-                        "status": metrics.get("status"),
-                        "ate_rmse_m": metrics.get("ate_rmse"),
-                        "orientation_ape_rmse_deg": metrics.get(
-                            "orientation_ape_rmse_deg"
-                        ),
-                        "valid_pose_ratio": metrics.get("valid_pose_ratio"),
-                        "lost_events": metrics.get("lost_events"),
-                    }
+    validation_root = root / "results/A/validation/P002/easy"
+    for mode in MODES:
+        for seed in SEEDS:
+            validation_rows.append(
+                load_run(
+                    validation_root / f"{mode}_seed{seed}",
+                    trajectory="P002",
+                    difficulty="easy",
+                    mode=mode,
+                    seed=seed,
+                    window="20.0-29.9s",
                 )
-    validation_csv = result_root / "validation_metrics.csv"
-    with validation_csv.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(
-            handle, fieldnames=list(validation_rows[0]), lineterminator="\n"
-        )
-        writer.writeheader()
-        writer.writerows(validation_rows)
+            )
+    validation_aggregate = aggregate_rows(validation_rows)
+    write_csv(result_root / "validation_metrics.csv", validation_rows)
     (result_root / "validation_metrics.json").write_text(
         json.dumps(validation_rows, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    write_csv(
+        result_root / "validation_aggregate.csv", validation_aggregate
+    )
+    (result_root / "validation_aggregate.json").write_text(
+        json.dumps(validation_aggregate, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    plot_summary(
+        validation_aggregate,
+        title="A Holdout: TartanAir easy P002, 3 seeds, 20.0-29.9 s",
+        output=figure_root / "validation_summary.png",
+    )
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.8))
-    colors = ["#4C78A8", "#F58518", "#54A24B"]
-    for difficulty in DIFFICULTIES:
-        selected = [
-            row for row in aggregate if row["difficulty"] == difficulty
-        ]
-        x = np.arange(len(MODES))
-        ate_means = np.array(
-            [
-                row["ate_rmse_m_mean"]
-                if row["ate_rmse_m_mean"] is not None
-                else np.nan
-                for row in selected
-            ],
-            dtype=float,
-        )
-        ate_stds = np.array(
-            [
-                row["ate_rmse_m_std"]
-                if row["ate_rmse_m_std"] is not None
-                else 0.0
-                for row in selected
-            ],
-            dtype=float,
-        )
-        ate_errors = np.vstack(
-            [
-                np.where(np.isnan(ate_means), 0.0, np.minimum(ate_means, ate_stds)),
-                ate_stds,
-            ]
-        )
-        axes[0].bar(
-            x,
-            ate_means,
-            yerr=ate_errors,
-            capsize=4,
-            color=colors,
-        )
-        axes[0].set_xticks(x, MODES)
-        axes[0].set_ylabel("ATE RMSE [m]")
-        axes[0].set_title("Trajectory error")
-        axes[0].grid(True, axis="y", alpha=0.3)
-        if np.isnan(ate_means).any():
-            axes[0].text(
-                0.5,
-                0.5,
-                "N/A: no single map covers the fixed window",
-                transform=axes[0].transAxes,
-                ha="center",
-                va="center",
-                alpha=0.65,
-                fontsize=10,
+    hard_rows = []
+    hard_root = root / "results/A/baseline_final/hard/P001_window_start100"
+    for mode in MODES:
+        for seed in SEEDS:
+            hard_rows.append(
+                load_run(
+                    hard_root / f"{mode}_seed{seed}",
+                    trajectory="P001",
+                    difficulty="hard",
+                    mode=mode,
+                    seed=seed,
+                    window="10.0-19.9s",
+                )
             )
+    hard_aggregate = aggregate_rows(hard_rows)
+    write_csv(result_root / "hard_metrics.csv", hard_rows)
+    (result_root / "hard_metrics.json").write_text(
+        json.dumps(hard_rows, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    write_csv(result_root / "hard_aggregate.csv", hard_aggregate)
+    (result_root / "hard_aggregate.json").write_text(
+        json.dumps(hard_aggregate, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    plot_hard_robustness(
+        hard_aggregate, figure_root / "hard_robustness.png"
+    )
 
-        coverage_means = 100.0 * np.array(
-            [
-                row["valid_pose_ratio_mean"]
-                if row["valid_pose_ratio_mean"] is not None
-                else np.nan
-                for row in selected
-            ],
-            dtype=float,
-        )
-        coverage_stds = 100.0 * np.array(
-            [
-                row["valid_pose_ratio_std"]
-                if row["valid_pose_ratio_std"] is not None
-                else 0.0
-                for row in selected
-            ],
-            dtype=float,
-        )
-        coverage_errors = np.vstack(
-            [
-                np.where(
-                    np.isnan(coverage_means),
-                    0.0,
-                    np.minimum(coverage_means, coverage_stds),
-                ),
-                coverage_stds,
-            ]
-        )
-        axes[1].bar(
-            x,
-            coverage_means,
-            yerr=coverage_errors,
-            capsize=4,
-            color=colors,
-        )
-        axes[1].set_xticks(x, MODES)
-        axes[1].set_ylim(0, 105)
-        axes[1].set_ylabel("Valid pose coverage [%]")
-        axes[1].set_title("Tracking coverage")
-        axes[1].grid(True, axis="y", alpha=0.3)
-    fig.suptitle("A Baseline: TartanAir easy P000, 3 seeds, 20.0-29.9 seconds")
-    fig.tight_layout()
-    fig.savefig(figure_root / "baseline_summary.png", dpi=170)
-    plt.close(fig)
-    print(f"Wrote {csv_path}")
-    print(f"Wrote {result_root / 'baseline_metrics.json'}")
-    print(f"Wrote {aggregate_csv}")
-    print(f"Wrote {aggregate_json}")
-    print(f"Wrote {validation_csv}")
+    print(f"Wrote {result_root / 'baseline_metrics.csv'}")
+    print(f"Wrote {result_root / 'baseline_aggregate.csv'}")
+    print(f"Wrote {result_root / 'validation_metrics.csv'}")
+    print(f"Wrote {result_root / 'validation_aggregate.csv'}")
+    print(f"Wrote {result_root / 'hard_metrics.csv'}")
+    print(f"Wrote {result_root / 'hard_aggregate.csv'}")
     print(f"Wrote {figure_root / 'baseline_summary.png'}")
+    print(f"Wrote {figure_root / 'validation_summary.png'}")
+    print(f"Wrote {figure_root / 'hard_robustness.png'}")
 
 
 if __name__ == "__main__":

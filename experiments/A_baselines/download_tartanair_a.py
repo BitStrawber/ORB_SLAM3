@@ -19,7 +19,7 @@ ENDPOINT = (
     "AUTH_ac8533a83cff4d48bc8c608ad222d330"
 )
 ENVIRONMENT = "OldTownSummer"
-DIFFICULTIES = ("easy",)
+DIFFICULTIES = ("easy", "hard")
 MODALITIES = ("image_lcam_front", "depth_lcam_front", "imu")
 
 
