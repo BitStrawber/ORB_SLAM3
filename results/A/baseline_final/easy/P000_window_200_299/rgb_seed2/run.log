@@ -26,7 +26,7 @@ SLAM settings:
 	-Current image size: [ 640 , 640 ]
 	-Camera 1 parameters after resize: [  320 320 320 320 ]
 	-Sequence FPS: 10
-	-Features per image: 2000
+	-Features per image: 1250
 	-ORB scale factor: 1.2
 	-ORB number of scales: 8
 	-Initial FAST threshold: 20
@@ -43,12 +43,12 @@ Seq. Name: rgb
 There are 1 cameras in the atlas
 Camera 0 is pinhole
 First KF:0; Map init KF:0
-New Map created with 316 points
+New Map created with 173 points
 Shutdown
 
 Saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_seed2/trajectory_orb_raw.tum ...
 There are 1 maps in the atlas
-  Map 0 has 34 KFs
+  Map 0 has 45 KFs
 
 End of saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_seed2/trajectory_orb_raw.tum ...
 

@@ -1,44 +1,39 @@
 # A Baseline Slide Material
 
-## Slide: Baseline setup
+## Slide: Controlled setup
 
 - Three ORB-SLAM3 modes: RGB, RGB+IMU, RGB-D+IMU.
 - TartanAir V2 OldTownSummer, paired easy/hard P000.
-- Frozen 10-second window: 20.0-29.9 seconds.
-- Identical camera, ORB extractor, IMU noise, and timestamps for all modes.
-- Headless execution paced at the original 10 Hz sensor rate.
+- Fixed window: frames 200-299, 20.0-29.9 seconds.
+- Same camera, ORB parameters, IMU noise, timestamps, and seeds.
+- Same optimized-keyframe body trajectory exporter for every mode.
+- Fixed single-thread math libraries; viewer disabled.
 
-## Slide: Important implementation corrections
+## Slide: Experimental controls
 
-- Decode TartanAir depth from lossless four-channel PNG to float32 metres.
-- Apply the NED/optical camera-to-IMU axis permutation.
-- Use ORB-SLAM3 EuRoC-scale IMU noise and random-walk parameters.
-- Record ORB tracking state and map ID for every frame.
-- Compute trajectory error on the largest continuous map segment while reporting
-  full-sequence coverage and all loss events.
+- BGR input is declared correctly.
+- TartanAir NED/optical `Tbc` is applied consistently.
+- Seed is injected after ORB-SLAM3 construction.
+- Coverage and loss events use all frames.
+- ATE/RPE are N/A when a fixed window crosses map coordinate systems.
+- Optimized, per-frame, and raw trajectories are stored separately.
 
 ## Slide: Main results
 
-Use `results/A/figures/baseline_summary.png` and these values:
+Use `results/A/figures/baseline_summary.png`.
 
-- Easy RGB: 0.020 m ATE, 98% coverage.
-- Easy RGB+IMU: 0.789 m mean / 0.575 m median ATE, 87.3% coverage.
-- Easy RGB-D+IMU: 0.067 m ATE, 98% coverage.
-- Hard RGB: 1.257 m mean / 0.263 m median ATE, 35% coverage.
-- Hard RGB+IMU: 4.718 m ATE, 25.7% coverage.
-- Hard RGB-D+IMU: 5.259 m ATE, 61% coverage.
-
-All values are mean over three seeds.
+- Easy RGB: 1.659 m ATE, 98% coverage.
+- Easy RGB+IMU: 0.123 m ATE on 2/3 valid seeds, 73.3% coverage.
+- Easy RGB-D+IMU: 0.224 m ATE, 98% coverage.
+- Hard RGB: ATE N/A, 27.0% coverage.
+- Hard RGB+IMU: ATE N/A, 20.0% coverage.
+- Hard RGB-D+IMU: ATE N/A, 58.0% coverage.
 
 ## Slide: Interpretation
 
-- The easy fused RGB-D run is stable and accurate.
-- RGB+IMU has a good median but one scale-initialization outlier.
-- Hard scenarios cause substantial loss in all modes.
-- RGB-D+IMU provides the best hard coverage.
-- Results are reported without deleting failed frames or failed seeds.
-
-P002 holdout validation confirms easy RGB+IMU and RGB-D+IMU results:
-
-- Easy RGB+IMU: 0.060 m ATE, 99% coverage.
-- Easy RGB-D+IMU: 0.024 m ATE, 98% coverage.
+- RGB+IMU is not universally better than RGB on a short easy sequence.
+- P002 easy changes the ordering: RGB+IMU 0.328 m and RGB-D+IMU 0.281 m outperform
+  RGB at 1.140 m.
+- Hard sequences produce map changes severe enough that fixed-window ATE is undefined.
+- Coverage and loss events are reported rather than hiding this failure.
+- No validation sequence was used for further parameter tuning.

@@ -28,6 +28,14 @@ The camera-to-IMU transform is the fixed optical-to-NED axis permutation:
 IMU noise and random-walk values use the ORB-SLAM3 EuRoC magnitudes, not a near-zero
 placeholder covariance.
 
+The comparison protocol uses the same optimized-keyframe body-frame trajectory as the
+primary metric source for every mode. Per-frame and largest-map trajectories are retained
+as diagnostic artifacts. ATE/RPE are computed over the full frozen window only when all
+valid tracking frames belong to one map; otherwise they are marked unavailable. OpenMP,
+OpenBLAS, and MKL are fixed to one thread. RPE uses a 1 m interval. The seed is reapplied
+after ORB-SLAM3 construction because the TwoViewReconstruction constructor seeds its own
+RNG.
+
 ## Environment
 
 ```bash
@@ -69,15 +77,14 @@ python A_ROOT/experiments/A_baselines/run_baseline.py \
 ```
 
 The runner is headless, uses `bUseViewer=false`, paces input at the timestamp rate,
-and writes `trajectory_est.tum`, `trajectory_camera.tum`, `tracking.csv`, `run.log`,
-and `run_meta.json`. `trajectory_est.tum` is expressed in the TartanAir body/NED frame.
-Inertial modes use ORB-SLAM3's optimized largest-map trajectory when it contains at
-least 10 points; otherwise they use the dense per-frame trajectory and record that
-fallback in `run_meta.json`.
+and writes `trajectory_est.tum`, `trajectory_frames.tum`, `trajectory_orb_raw.tum`,
+`tracking.csv`, `run.log`, and `run_meta.json`. `trajectory_est.tum` is the optimized
+keyframe trajectory in TartanAir body/NED coordinates and is the only primary comparison
+trajectory.
 
 ## Evaluate
 
-RGB uses Sim(3). RGB+IMU and RGB-D+IMU use SE(3).
+RGB uses Sim(3). RGB+IMU and RGB-D+IMU use SE(3). RPE uses a 1 m interval.
 
 ```bash
 python A_ROOT/experiments/A_baselines/evaluate_run.py \

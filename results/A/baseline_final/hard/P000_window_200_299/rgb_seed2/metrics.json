@@ -1,23 +1,17 @@
 {
   "alignment": "sim3",
-  "ate_mean": 0.1321636131367776,
-  "ate_median": 0.0969129026627875,
-  "ate_rmse": 0.17531345354606392,
-  "ate_std": 0.11518500925415646,
-  "evaluated_map_id": 0,
-  "evaluated_map_valid_rows": 35,
-  "evaluated_window_end": 23.600000381469727,
-  "evaluated_window_start": 20.100000381469727,
+  "error": "Multiple maps are active in the fixed evaluation window; ATE/RPE would mix incompatible coordinate frames.",
   "input_frames": 100,
-  "lost_events": 5,
-  "matched_pose_frames": 35,
-  "mean_latency_ms": 38.782896189999995,
-  "orientation_ape_rmse_deg": 1.8251394644909897,
-  "p95_latency_ms": 84.83514474999998,
-  "rpe_delta_frames": 10,
-  "rpe_rotation_deg_rmse": 0.23983572730984298,
-  "rpe_translation_rmse": 0.08892688761824263,
-  "status": "ok",
-  "valid_pose_frames": 38,
-  "valid_pose_ratio": 0.38
+  "lost_events": 2,
+  "map_ids_in_valid_tracking": [
+    0,
+    1
+  ],
+  "mean_latency_ms": 32.13168277,
+  "p95_latency_ms": 52.08574125,
+  "rpe_delta": 1.0,
+  "rpe_delta_unit": "meters",
+  "status": "invalid_map_discontinuity",
+  "valid_pose_frames": 23,
+  "valid_pose_ratio": 0.23
 }

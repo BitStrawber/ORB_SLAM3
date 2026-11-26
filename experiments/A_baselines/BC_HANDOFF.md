@@ -52,8 +52,13 @@ to `run_baseline.py`.
 - Report ATE, RPE, valid-pose coverage, lost events, mean latency, and P95 latency.
 - Report orientation APE because RPE rotation is invariant to some global frame offsets.
 - Use `trajectory_est.tum`, which is in the TartanAir body/NED frame.
-- Inspect `run_meta.json.trajectory_source`; a dense per-frame fallback means the
-  optimized map had too few points for reliable trajectory alignment.
+- `trajectory_est.tum` is always the same primary optimized-keyframe body trajectory.
+  Do not switch trajectory exporters for only one arm of a comparison.
+- `trajectory_frames.tum` is a diagnostic per-frame trajectory and must not replace the
+  primary keyframe trajectory in a comparison.
+- Only compare ATE/RPE when `metric_status` is `ok`. If it is
+  `invalid_map_discontinuity`, coverage and lost events remain available but ATE
+  must be reported as `NA`.
 - Failed initialization must be preserved as a failed run.
 
 ## Minimum handoff smoke test

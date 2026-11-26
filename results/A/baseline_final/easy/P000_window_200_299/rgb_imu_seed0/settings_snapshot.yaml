@@ -18,9 +18,9 @@ Camera.height: 640
 Camera.newWidth: 640
 Camera.newHeight: 640
 Camera.fps: 10
-Camera.RGB: 1
+Camera.RGB: 0
 
-ORBextractor.nFeatures: 2000
+ORBextractor.nFeatures: 1250
 ORBextractor.scaleFactor: 1.2
 ORBextractor.nLevels: 8
 ORBextractor.iniThFAST: 20

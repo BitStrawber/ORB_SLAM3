@@ -32,7 +32,7 @@ SLAM settings:
 	-Gyro walk: 1.9e-05
 	-Accelerometer walk: 0.003
 	-IMU frequency: 100
-	-Features per image: 2000
+	-Features per image: 1250
 	-ORB scale factor: 1.2
 	-ORB number of scales: 8
 	-Initial FAST threshold: 20
@@ -49,8 +49,7 @@ Seq. Name: rgb_imu
 There are 1 cameras in the atlas
 Camera 0 is pinhole
 First KF:0; Map init KF:0
-New Map created with 316 points
-scale too small
+New Map created with 173 points
 Fail to track local map!
 IMU is not or recently initialized. Reseting active map...
 SYSTEM-> Reseting active map in monocular case
@@ -62,9 +61,9 @@ LM: Reset free the mutex
 LM: Active map reset, Done!!!
 mnFirstFrameId = 2
 mnInitialFrameId = 0
-26 Frames set to lost
-First KF:10; Map init KF:0
-New Map created with 324 points
+2 Frames set to lost
+First KF:2; Map init KF:0
+New Map created with 122 points
 Fail to track local map!
 IMU is not or recently initialized. Reseting active map...
 SYSTEM-> Reseting active map in monocular case
@@ -74,18 +73,90 @@ LM: Reseting current map in Local Mapping...
 LM: End reseting Local Mapping...
 LM: Reset free the mutex
 LM: Active map reset, Done!!!
-mnFirstFrameId = 30
-mnInitialFrameId = 27
-44 Frames set to lost
-First KF:17; Map init KF:10
-New Map created with 328 points
+mnFirstFrameId = 8
+mnInitialFrameId = 3
+4 Frames set to lost
+First KF:4; Map init KF:2
+New Map created with 170 points
+Fail to track local map!
+IMU is not or recently initialized. Reseting active map...
+SYSTEM-> Reseting active map in monocular case
+LM: Active map reset recieved
+LM: Active map reset, waiting...
+LM: Reseting current map in Local Mapping...
+LM: End reseting Local Mapping...
+LM: Reset free the mutex
+LM: Active map reset, Done!!!
+mnFirstFrameId = 11
+mnInitialFrameId = 9
+6 Frames set to lost
+First KF:6; Map init KF:4
+New Map created with 160 points
+Fail to track local map!
+IMU is not or recently initialized. Reseting active map...
+SYSTEM-> Reseting active map in monocular case
+LM: Active map reset recieved
+LM: Active map reset, waiting...
+LM: Reseting current map in Local Mapping...
+LM: End reseting Local Mapping...
+LM: Reset free the mutex
+LM: Active map reset, Done!!!
+mnFirstFrameId = 16
+mnInitialFrameId = 12
+8 Frames set to lost
+First KF:8; Map init KF:6
+New Map created with 166 points
+Fail to track local map!
+IMU is not or recently initialized. Reseting active map...
+SYSTEM-> Reseting active map in monocular case
+LM: Active map reset recieved
+LM: Active map reset, waiting...
+LM: Reseting current map in Local Mapping...
+LM: End reseting Local Mapping...
+LM: Reset free the mutex
+LM: Active map reset, Done!!!
+mnFirstFrameId = 19
+mnInitialFrameId = 17
+10 Frames set to lost
+First KF:10; Map init KF:8
+New Map created with 184 points
+Fail to track local map!
+IMU is not or recently initialized. Reseting active map...
+SYSTEM-> Reseting active map in monocular case
+LM: Active map reset recieved
+LM: Active map reset, waiting...
+LM: Reseting current map in Local Mapping...
+LM: End reseting Local Mapping...
+LM: Reset free the mutex
+LM: Active map reset, Done!!!
+mnFirstFrameId = 22
+mnInitialFrameId = 20
+12 Frames set to lost
+First KF:12; Map init KF:10
+New Map created with 146 points
+TRACK_REF_KF: Less than 15 matches!!
+Fail to track local map!
+SYSTEM-> Reseting active map in monocular case
+LM: Active map reset recieved
+LM: Active map reset, waiting...
+LM: Reseting current map in Local Mapping...
+LM: End reseting Local Mapping...
+LM: Reset free the mutex
+LM: Active map reset, Done!!!
+mnFirstFrameId = 26
+mnInitialFrameId = 23
+13 Frames set to lost
+First KF:14; Map init KF:12
+New Map created with 183 points
+start VIBA 1
+end VIBA 1
 Shutdown
 
 Saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_imu_seed1/trajectory_orb_raw.tum ...
 There are 1 maps in the atlas
-  Map 0 has 20 KFs
+  Map 0 has 36 KFs
 
 End of saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_imu_seed1/trajectory_orb_raw.tum ...
 
 Saving keyframe trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/baseline_final/easy/P000_window_200_299/rgb_imu_seed1/keyframe_trajectory.tum ...
-frames=100 valid_poses=92 mode=rgb_imu seed=1
+frames=100 valid_poses=76 mode=rgb_imu seed=1

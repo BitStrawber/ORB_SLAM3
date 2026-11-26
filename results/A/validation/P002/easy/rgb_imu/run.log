@@ -32,7 +32,7 @@ SLAM settings:
 	-Gyro walk: 1.9e-05
 	-Accelerometer walk: 0.003
 	-IMU frequency: 100
-	-Features per image: 2000
+	-Features per image: 1250
 	-ORB scale factor: 1.2
 	-ORB number of scales: 8
 	-Initial FAST threshold: 20
@@ -49,14 +49,14 @@ Seq. Name: rgb_imu
 There are 1 cameras in the atlas
 Camera 0 is pinhole
 First KF:0; Map init KF:0
-New Map created with 525 points
+New Map created with 358 points
 start VIBA 1
 end VIBA 1
 Shutdown
 
 Saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/validation/P002/easy/rgb_imu/trajectory_orb_raw.tum ...
 There are 1 maps in the atlas
-  Map 0 has 41 KFs
+  Map 0 has 53 KFs
 
 End of saving trajectory to /media/SSD0/XCX/ORB_SLAM3_A/results/A/validation/P002/easy/rgb_imu/trajectory_orb_raw.tum ...
 

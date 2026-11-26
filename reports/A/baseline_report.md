@@ -1,80 +1,85 @@
-# A Baseline v0 Report
+# A Baseline Report
 
 ## Scope
 
-This report reproduces three ORB-SLAM3 modes on TartanAir V2 without modifying the
+This report evaluates three ORB-SLAM3 modes on TartanAir V2 without modifying the
 optimizer or fusion backend:
 
 - `rgb`: `MONOCULAR`
 - `rgb_imu`: `IMU_MONOCULAR`
 - `rgbd_imu`: `IMU_RGBD`
 
-## Frozen setup
+## Controlled protocol
 
-- Environment: `OldTownSummer`
-- Trajectories: easy `P000`, hard `P000`
-- Evaluation window: frames 200-299, 20.0-29.9 seconds
-- Camera: 640x640, pinhole, `fx=fy=320`, `cx=cy=320`, no distortion
-- IMU: TartanAir synthetic IMU at 100 Hz, aligned with `lcam_front`
-- IMU-camera extrinsic: NED/optical axis permutation, with zero translation
-- ORB features: 2000
-- ORB-SLAM3 fork commit at run time: `7eeb5c42c874693923ac3f655bfe342d740d45f7`
-- Evaluation: RGB with Sim(3), inertial modes with SE(3)
-- RPE interval: 10 frames
+- Dataset: TartanAir V2, `OldTownSummer`
+- Primary trajectories: easy `P000` and hard `P000`
+- Fixed evaluation window: frames 200-299, 20.0-29.9 seconds
+- Seeds: `0`, `1`, `2`
+- Camera: pinhole 640x640, `fx=fy=320`, `cx=cy=320`, zero distortion
+- Image input: OpenCV BGR (`Camera.RGB: 0`)
+- IMU: 100 Hz, fixed optical-to-NED `Tbc`, zero translation
+- ORB features: 1250
+- Math-library threads: OpenMP/OpenBLAS/MKL fixed to one
+- Seed is applied again after ORB-SLAM3 construction to override the internal
+  TwoViewReconstruction seed
+- Primary trajectory: ORB-SLAM3 optimized keyframe trajectory converted to body/NED
+- Secondary trajectory: per-frame body trajectory and ORB largest-map diagnostic
+- Coverage and loss events always use all frames in the fixed window
+- RGB alignment: Sim(3); inertial alignment: SE(3)
+- ATE/RPE are `N/A` if a fixed window contains multiple map frames
 
-The run is headless and paced at the camera timestamp rate. Pacing is required because
-feeding frames faster than local mapping causes avoidable map resets.
+The same protocol was applied to P002 without further tuning.
 
-## Results (mean over seeds 0, 1, 2)
+## Results
 
-| Difficulty | Mode | ATE RMSE [m] | RPE translation [m] | RPE rotation [deg] | Coverage | Lost events |
-|---|---|---:|---:|---:|---:|---:|
-| easy | rgb | 0.020 ± 0.002 | 0.040 ± 0.006 | 0.151 ± 0.022 | 98.0% ± 0.0% | 0 |
-| easy | rgb_imu | 0.789 ± 0.785 | 0.299 ± 0.437 | 6.675 ± 11.347 | 87.3% ± 10.8% | 3.0 ± 2.6 |
-| easy | rgbd_imu | 0.067 ± 0.006 | 0.072 ± 0.011 | 0.245 ± 0.054 | 98.0% ± 0.0% | 0 |
-| hard | rgb | 1.257 ± 1.799 | 1.727 ± 2.465 | 8.923 ± 12.113 | 35.0% ± 5.2% | 5.7 ± 3.1 |
-| hard | rgb_imu | 4.718 ± 0.047 | 6.836 ± 0.215 | 56.044 ± 11.078 | 25.7% ± 2.1% | 19.0 ± 1.0 |
-| hard | rgbd_imu | 5.259 ± 0.000 | 4.284 ± 0.000 | 33.135 ± 0.000 | 61.0% ± 0.0% | 19.0 ± 0.0 |
+Values are mean and standard deviation over valid seeds. For easy RGB+IMU, one of the
+three keyframe trajectories was unusable, so aggregate error uses the two valid seeds.
+
+| Difficulty | Mode | Valid seeds | ATE RMSE [m] | RPE translation [m] | RPE rotation [deg] | Coverage | Lost events |
+|---|---|---:|---:|---:|---:|---:|---:|
+| easy | rgb | 3/3 | 1.659 ± 0.021 | 1.270 ± 0.284 | 21.776 ± 5.539 | 98.0% | 0 |
+| easy | rgb_imu | 2/3 | 0.123 | 0.608 | 19.907 | 73.3% ± 4.6% | 8.0 ± 1.7 |
+| easy | rgbd_imu | 3/3 | 0.224 ± 0.012 | 0.634 ± 0.003 | 25.027 ± 0.440 | 98.0% | 0 |
+| hard | rgb | 0/3 | N/A | N/A | N/A | 27.0% ± 5.3% | 6.3 ± 4.5 |
+| hard | rgb_imu | 0/3 | N/A | N/A | N/A | 20.0% ± 1.7% | 18.3 ± 1.2 |
+| hard | rgbd_imu | 0/3 | N/A | N/A | N/A | 58.0% | 20.0 |
 
 ## Interpretation
 
-The easy RGB run provides an excellent short-window baseline with centimetre-level ATE.
-RGB-D+IMU is also stable at 98% coverage and sub-decimetre mean ATE. RGB+IMU has a good
-median (0.575 m ATE, 92% coverage) but one outlier seed drives the mean and variance.
-Hard runs are substantially less stable for all modes. RGB-D+IMU has the best hard
-coverage, while RGB+IMU is the least stable.
+The controlled experiment does not show RGB+IMU outperforming RGB on easy/P000.
+RGB+IMU has lower coverage, more loss events, and one seed without a usable optimized
+keyframe trajectory. RGB-D+IMU is more stable than RGB+IMU but still does not outperform
+RGB in ATE on this short easy window.
 
-The result must not be reported as proof that fusion improves accuracy. It is a valid
-baseline reproduction showing that:
+Hard scenarios cause repeated map changes. Under the fixed-window rule, ATE cannot be
+defined because different maps do not share a consistent coordinate frame. Coverage and
+loss events are reported instead of manufacturing a trajectory from incompatible maps.
 
-1. The data adapter and three ORB modes execute end-to-end.
-2. Easy RGB can track accurately.
-3. RGB-D+IMU is stable on easy; RGB+IMU scale initialization remains seed-sensitive.
-4. Hard scenarios produce substantial degradation and map resets.
+These are valid findings, not grounds for retuning on the validation sequence.
+
+## P002 holdout
+
+| Difficulty | Mode | ATE [m] | Coverage | Lost events |
+|---|---|---:|---:|---:|
+| easy | rgb | 1.140 | 99% | 0 |
+| easy | rgb_imu | 0.328 | 99% | 0 |
+| easy | rgbd_imu | 0.281 | 98% | 0 |
+| hard | rgb | N/A | 57% | 6 |
+| hard | rgb_imu | N/A | 32% | 26 |
+| hard | rgbd_imu | N/A | 64% | 17 |
+
+P002 changes the sign of the easy accuracy ordering: both fusion modes outperform RGB
+there. This scene dependence prevents a universal claim that one mode is always better.
+
+## Repeatability
+
+A repeated easy/RGB+IMU run with the same seed still differed because ORB-SLAM3 uses
+internal worker threads. The run is reproducible in protocol, but not bitwise
+deterministic. Seed variation must be interpreted together with scheduling variation.
 
 ## Limitations
 
-- Three fixed seeds are included for every sequence/mode combination.
-- The 10-second window is selected to remain before major map-coordinate discontinuities.
-- Map reset and lost frames are retained in coverage and lost-event metrics.
-- The fixed optical-to-NED rotation follows the coordinate conventions; translation is
-  zero because TartanAir places the IMU frame at the camera center.
-- ATE from different map resets is not meaningful unless the maps are aligned; the
-  frozen window avoids concatenating incompatible map coordinates.
-
-## Holdout validation
-
-The same code, configuration, frame range, and seed were applied without further tuning
-to P002:
-
-| Difficulty | Mode | ATE [m] | Orientation APE [deg] | Coverage | Lost events |
-|---|---|---:|---:|---:|---:|
-| easy | rgb | 0.293 | 20.869 | 99% | 0 |
-| easy | rgb_imu | 0.060 | 0.387 | 99% | 0 |
-| easy | rgbd_imu | 0.024 | 0.322 | 98% | 0 |
-| hard | rgb | 8.633 | 95.563 | 24% | 5 |
-| hard | rgb_imu | 9.273 | 45.557 | 47% | 22 |
-| hard | rgbd_imu | 9.358 | 45.137 | 64% | 17 |
-
-The holdout confirms that easy fusion tracking generalizes beyond the window used to
-define the matrix, while hard scenarios remain genuinely challenging.
+- One simulation environment and one paired scene are not enough for broad generalization.
+- The fixed short window avoids long trajectories where additional map resets dominate.
+- TartanAir IMU is synthetic and ORB noise parameters use an EuRoC-scale setting.
+- Hard ATE is unavailable because map continuity fails; this is a real experiment result.

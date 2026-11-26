@@ -11,18 +11,19 @@
   ],
   "cwd": "/home/fcp",
   "environment": {
-    "CMAKE_PREFIX_PATH": "/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb:/media/SSD0/XCX/ORB_SLAM3_A/install/pangolin",
+    "CMAKE_PREFIX_PATH": "/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb:/media/SSD0/XCX/ORB_SLAM3_A/install/pangolin:/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb:/media/SSD0/XCX/ORB_SLAM3_A/install/pangolin",
     "CONDA_PREFIX": "/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb",
-    "CPATH": "/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb/include",
-    "LD_LIBRARY_PATH": "/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb/lib:/media/SSD0/XCX/ORB_SLAM3_A/install/pangolin/lib",
+    "CPATH": "/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb/include:/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb/include",
+    "LD_LIBRARY_PATH": "/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb/lib:/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb/lib:/media/SSD0/XCX/ORB_SLAM3_A/install/pangolin/lib:/media/SSD0/XCX/ORB_SLAM3_A/conda_envs/a_orb/lib:/media/SSD0/XCX/ORB_SLAM3_A/install/pangolin/lib",
     "TMPDIR": "/media/SSD0/XCX/ORB_SLAM3_A/tmp"
   },
-  "finished_utc": "2026-11-26T05:54:22.070737+00:00",
-  "git_commit": "7eeb5c42c874693923ac3f655bfe342d740d45f7",
+  "finished_utc": "2026-11-26T07:08:24.281862+00:00",
+  "git_commit": "5390cf4ed000979f4380f8f7d884010be441021b",
   "mode": "rgb",
+  "optimized_trajectory_source": "keyframe_body",
   "return_code": 0,
   "seed": 1,
-  "started_utc": "2026-11-26T05:54:05.457020+00:00",
+  "started_utc": "2026-11-26T07:08:08.719979+00:00",
   "status": "ok",
-  "trajectory_source": "per_frame_body"
+  "trajectory_source": "optimized_keyframe_body"
 }

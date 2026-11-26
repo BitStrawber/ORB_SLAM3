@@ -1,23 +1,18 @@
 {
   "alignment": "se3",
-  "ate_mean": 1.450837681952225,
-  "ate_median": 1.292602966946007,
-  "ate_rmse": 1.6586718828197866,
-  "ate_std": 0.8039044940068626,
-  "evaluated_map_id": 0,
-  "evaluated_map_valid_rows": 75,
+  "error": "FilterException: delta = 1.0 (m) produced an empty index list - try lower values or a less strict tolerance",
   "evaluated_window_end": 29.899999618530273,
-  "evaluated_window_start": 20.200000762939453,
+  "evaluated_window_start": 20.0,
   "input_frames": 100,
-  "lost_events": 6,
-  "matched_pose_frames": 75,
-  "mean_latency_ms": 53.33990806,
-  "orientation_ape_rmse_deg": 83.59175770216908,
-  "p95_latency_ms": 142.69174329999998,
-  "rpe_delta_frames": 10,
-  "rpe_rotation_deg_rmse": 19.77710605722312,
-  "rpe_translation_rmse": 0.8027576127222069,
-  "status": "ok",
-  "valid_pose_frames": 75,
-  "valid_pose_ratio": 0.75
+  "lost_events": 10,
+  "map_ids_in_valid_tracking": [
+    0
+  ],
+  "mean_latency_ms": 43.167493140000005,
+  "p95_latency_ms": 118.74400374999999,
+  "rpe_delta": 1.0,
+  "rpe_delta_unit": "meters",
+  "status": "failed",
+  "valid_pose_frames": 68,
+  "valid_pose_ratio": 0.68
 }
