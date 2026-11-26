@@ -11,7 +11,7 @@ source "${REPO_ROOT}/scripts/A/activate_a_orb.sh"
 
 root="${A_ROOT}"
 python_bin="${A_CONDA_ENV}/bin/python"
-runner="${root}/build/A_baselines/run_tartanair"
+runner="${A_RUNNER:-${root}/build/A_baselines_repo/run_tartanair}"
 vocab="${REPO_ROOT}/Vocabulary/ORBvoc.txt"
 settings="${REPO_ROOT}/configs/A/tartanair.yaml"
 data_root="${TARTANAIR_ROOT:-${root}/data/TartanAirV2}"
@@ -60,8 +60,8 @@ run_case() {
         --orb-root "${REPO_ROOT}"
       local run_status=$?
       echo "RUN ${trajectory} ${difficulty} ${mode} ${seed}: exit=${run_status}"
-      if [[ ${run_status} -ne 0 && ! -s "${run_dir}/trajectory_est.tum" ]]; then
-        printf '{"status":"failed","error":"runner exit %s and no trajectory"}\n' \
+      if [[ ! -s "${run_dir}/tracking.csv" ]]; then
+        printf '{"status":"runner_failed_no_tracking","error":"runner exit %s; tracking.csv is missing or empty","ate_status":"unavailable","rpe_translation_status":"unavailable","rpe_rotation_status":"unavailable"}\n' \
           "${run_status}" > "${run_dir}/metrics.json"
         continue
       fi

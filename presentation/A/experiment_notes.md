@@ -17,7 +17,8 @@ Failed runs and map discontinuities remain visible.
 ## Easy P000
 
 - RGB: 1.659 m ATE, 98% coverage.
-- RGB+IMU: 0.123 m ATE on two valid seeds, 73.3% mean coverage.
+- RGB+IMU: 0.090 m ATE on three valid seeds, 73.3% mean coverage; 1 m RPE is
+  available on two seeds.
 - RGB-D+IMU: 0.224 m ATE, 98% coverage.
 
 ## Easy P002 holdout

@@ -38,14 +38,14 @@ Coverage and loss events always use the complete tracking log, including failed 
 
 ## Easy primary result: P000
 
-Values are mean and standard deviation across three seeds. RGB+IMU has only two usable
-optimized trajectories, so its error values use two seeds while coverage and latency use
-all three.
+Values are mean and standard deviation across the seeds for which the specific metric is
+available. RGB+IMU has three usable optimized trajectories and ATE values, while its
+1 m RPE pairs are available for two seeds. Coverage and latency use all three seeds.
 
 | Mode | Valid seeds | ATE [m] | RPE trans. [m] | RPE rot. [deg] | Coverage | Loss events | Mean latency [ms] | P95 latency [ms] |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | rgb | 3/3 | 1.659 ± 0.021 | 1.270 ± 0.284 | 21.776 ± 5.539 | 98.0% | 0.0 | 29.33 ± 0.66 | 36.35 ± 0.38 |
-| rgb_imu | 2/3 | 0.123 ± 0.004 | 0.608 ± 0.023 | 19.907 ± 3.616 | 73.3% ± 4.6% | 8.0 ± 1.7 | 39.40 ± 3.27 | 100.32 ± 17.07 |
+| rgb_imu | 3/3 ATE; 2/3 RPE | 0.090 ± 0.057 | 0.608 ± 0.023 | 19.907 ± 3.616 | 73.3% ± 4.6% | 8.0 ± 1.7 | 39.40 ± 3.27 | 100.32 ± 17.07 |
 | rgbd_imu | 3/3 | 0.224 ± 0.012 | 0.634 ± 0.003 | 25.027 ± 0.440 | 98.0% | 0.0 | 26.18 ± 0.10 | 32.71 ± 2.65 |
 
 RGB+IMU has the lowest conditional ATE but loses substantially more frames. RGB-D+IMU

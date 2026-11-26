@@ -18,12 +18,15 @@
     "TMPDIR": null
   },
   "finished_utc": "2026-11-26T09:27:03.994285+00:00",
+  "frame_pose_count": 32,
   "git_commit": "8698581cddc5b4907153c9cfcd267d7b09615521",
+  "keyframe_count": 2,
   "mode": "rgb",
   "optimized_trajectory_source": "unavailable_sparse_keyframe",
+  "primary_trajectory_row_count": 0,
   "return_code": 0,
   "seed": 2,
   "started_utc": "2026-11-26T09:26:48.676831+00:00",
   "status": "ok",
-  "trajectory_source": "unavailable_keyframe"
+  "trajectory_source": "unavailable_sparse_keyframe"
 }

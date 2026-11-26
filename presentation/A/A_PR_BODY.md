@@ -96,8 +96,12 @@ presentation/A/docs/
 
 ## 主要发现（含失败结果）：
 
-- easy/P000：RGB+IMU 条件 ATE 最低，但覆盖率只有 73.3%，且 3 个 seed 中只有
-  2 个生成可用的优化关键帧轨迹。
+- 全部 54 个 run 都保留 tracking 日志并有逐帧位姿；其中 32 个得到可作连续评测的
+  主轨迹，18 个没有可用优化关键帧轨迹，4 个主轨迹跨 map、连续 ATE/RPE 记为 N/A。
+- easy/P000：RGB+IMU 的 3 个 seed 均可计算 ATE，ATE 为 0.090 ± 0.057 m；
+  但 1 m RPE 只有 2/3 seed 可计算，覆盖率 73.3%。
+- easy/P001：RGB+IMU 的 3 个 seed 均可计算 ATE，ATE 为 0.300 ± 0.254 m；
+  关键帧轨迹过稀，1 m RPE 在 3 个 seed 中均不可用，因此 ATE 和 RPE 分开记录。
 - easy/P002：RGB+IMU 和 RGB-D+IMU 均优于 RGB，说明 easy 场景的融合收益存在场景依赖。
 - hard/P001 全窗口覆盖率：RGB 50.3%、RGB+IMU 28.0%、RGB-D+IMU 60.0%。
 - hard/P001 全窗口跨越不连续地图坐标系，因此 ATE/RPE 标记为 `N/A`，不拼接不同 map。
@@ -107,6 +111,8 @@ presentation/A/docs/
 - 逐 map 分段评估得到 RGB 4 个、RGB+IMU 0 个、RGB-D+IMU 3 个可评估连续片段。
 - 扩展矩阵覆盖全部 6 条本地轨迹，共 54 个 run；新增 P001 Easy、P000 Hard 和
   P002 Hard 的失败结果均保留。
+- `primary_trajectory_unavailable` 表示没有足够的关键帧导出结果，不等同于没有
+  tracking；失败 run 仍输出逐帧 by-map 诊断图和完整覆盖率日志。
 - 结果显示融合不保证在每条序列上优于 RGB；hard 场景主要暴露 IMU 初始化、跟踪丢失
   和地图连续性失败。
 

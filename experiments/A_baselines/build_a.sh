@@ -23,6 +23,7 @@ if [[ ! -s "${VOCAB}" ]]; then
 fi
 
 BUILD_ROOT="${A_ROOT}/build"
+RUNNER_BUILD_ROOT="${A_RUNNER_BUILD_ROOT:-${BUILD_ROOT}/A_baselines_repo}"
 cmake -S "${REPO_ROOT}/Thirdparty/DBoW2" \
   -B "${BUILD_ROOT}/DBoW2" \
   -G Ninja \
@@ -38,11 +39,11 @@ cmake -S "${REPO_ROOT}" \
 cmake --build "${BUILD_ROOT}/ORB_SLAM3" --target ORB_SLAM3 --parallel 8
 
 cmake -S "${REPO_ROOT}/experiments/A_baselines" \
-  -B "${BUILD_ROOT}/A_baselines" \
+  -B "${RUNNER_BUILD_ROOT}" \
   -G Ninja \
   -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
   -DCMAKE_BUILD_TYPE=Release \
   -DORB_SLAM3_ROOT="${REPO_ROOT}"
-cmake --build "${BUILD_ROOT}/A_baselines" --parallel 8
+cmake --build "${RUNNER_BUILD_ROOT}" --parallel 8
 
-echo "A runner: ${BUILD_ROOT}/A_baselines/run_tartanair"
+echo "A runner: ${RUNNER_BUILD_ROOT}/run_tartanair"

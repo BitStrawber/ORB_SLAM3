@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -26,23 +28,65 @@ def git_head(repo: Path) -> str:
         return "unknown"
 
 
-def materialize_orb_trajectory(output: Path, settings: Path) -> dict[str, str]:
+def trajectory_row_count(path: Path) -> int:
+    if not path.exists() or path.stat().st_size == 0:
+        return 0
+    with path.open(encoding="utf-8") as handle:
+        return sum(1 for line in handle if line.strip())
+
+
+def imu_metadata(manifest: Path, imu: Path) -> dict[str, float | int]:
+    with manifest.open(newline="", encoding="utf-8") as handle:
+        first_frame = next(csv.DictReader(handle))
+    first_timestamp = float(first_frame["timestamp"])
+    timestamps: list[float] = []
+    with imu.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            timestamps.append(float(row["timestamp"]))
+    before_or_at = [stamp for stamp in timestamps if stamp <= first_timestamp]
+    return {
+        "first_frame_timestamp": first_timestamp,
+        "imu_first_timestamp": timestamps[0] if timestamps else math.nan,
+        "imu_last_timestamp": timestamps[-1] if timestamps else math.nan,
+        "imu_samples_before_or_at_first_frame": len(before_or_at),
+        "imu_sample_count": len(timestamps),
+    }
+
+
+def materialize_orb_trajectory(output: Path, settings: Path) -> dict[str, object]:
     primary_path = output / "trajectory_est.tum"
+    frame_pose_count = trajectory_row_count(primary_path)
     if primary_path.exists():
         shutil.copy2(primary_path, output / "trajectory_frames.tum")
     keyframe_path = output / "keyframe_trajectory.tum"
+    keyframe_count = trajectory_row_count(keyframe_path)
     if not keyframe_path.exists() or keyframe_path.stat().st_size == 0:
         primary_path.write_text("", encoding="utf-8")
         return {
-            "primary": "unavailable_keyframe",
+            "primary": "unavailable_empty_keyframe",
             "optimized": "unavailable_empty_keyframe",
+            "keyframe_count": keyframe_count,
+            "frame_pose_count": frame_pose_count,
+            "covariance_rank": None,
         }
-    rows = np.loadtxt(keyframe_path, ndmin=2)
-    if rows.size == 0 or rows.shape[0] < 3:
+    if keyframe_count == 0:
         primary_path.write_text("", encoding="utf-8")
         return {
-            "primary": "unavailable_keyframe",
+            "primary": "unavailable_empty_keyframe",
+            "optimized": "unavailable_empty_keyframe",
+            "keyframe_count": keyframe_count,
+            "frame_pose_count": frame_pose_count,
+            "covariance_rank": None,
+        }
+    rows = np.loadtxt(keyframe_path, ndmin=2)
+    if keyframe_count < 3:
+        primary_path.write_text("", encoding="utf-8")
+        return {
+            "primary": "unavailable_sparse_keyframe",
             "optimized": "unavailable_sparse_keyframe",
+            "keyframe_count": keyframe_count,
+            "frame_pose_count": frame_pose_count,
+            "covariance_rank": None,
         }
     covariance_rank = np.linalg.matrix_rank(
         np.cov(rows[:, 1:4], rowvar=False)
@@ -50,8 +94,11 @@ def materialize_orb_trajectory(output: Path, settings: Path) -> dict[str, str]:
     if covariance_rank < 2:
         primary_path.write_text("", encoding="utf-8")
         return {
-            "primary": "unavailable_keyframe",
+            "primary": "unavailable_degenerate_keyframe",
             "optimized": "unavailable_degenerate_keyframe",
+            "keyframe_count": keyframe_count,
+            "frame_pose_count": frame_pose_count,
+            "covariance_rank": int(covariance_rank),
         }
 
     storage = cv2.FileStorage(str(settings), cv2.FILE_STORAGE_READ)
@@ -72,6 +119,9 @@ def materialize_orb_trajectory(output: Path, settings: Path) -> dict[str, str]:
     return {
         "primary": "optimized_keyframe_body",
         "optimized": "keyframe_body",
+        "keyframe_count": keyframe_count,
+        "frame_pose_count": frame_pose_count,
+        "covariance_rank": int(covariance_rank),
     }
 
 
@@ -161,6 +211,13 @@ def main() -> int:
     )
     meta["trajectory_source"] = trajectory_sources["primary"]
     meta["optimized_trajectory_source"] = trajectory_sources["optimized"]
+    meta["keyframe_count"] = trajectory_sources["keyframe_count"]
+    meta["frame_pose_count"] = trajectory_sources["frame_pose_count"]
+    meta["keyframe_covariance_rank"] = trajectory_sources["covariance_rank"]
+    meta["primary_trajectory_row_count"] = trajectory_row_count(
+        output / "trajectory_est.tum"
+    )
+    meta["imu"] = imu_metadata(args.manifest, args.imu)
     (output / "run_meta.json").write_text(
         json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )

@@ -65,7 +65,7 @@ Paths:
 ```text
 A_ROOT=<workspace containing data, conda_envs, install, build>
 REPO_ROOT=<this Git checkout>
-runner=A_ROOT/build/A_baselines/run_tartanair
+runner=A_ROOT/build/A_baselines_repo/run_tartanair
 config=REPO_ROOT/configs/A/tartanair.yaml
 vocabulary=REPO_ROOT/Vocabulary/ORBvoc.txt
 ```
@@ -106,7 +106,7 @@ The same command supports the P002 holdout and hard P001 case by changing
 
 ```bash
 python "${REPO_ROOT}/experiments/A_baselines/run_baseline.py" \
-  --binary "${A_ROOT}/build/A_baselines/run_tartanair" \
+  --binary "${A_ROOT}/build/A_baselines_repo/run_tartanair" \
   --vocab "${REPO_ROOT}/Vocabulary/ORBvoc.txt" \
   --settings "${REPO_ROOT}/configs/A/tartanair.yaml" \
   --mode rgb \
@@ -122,6 +122,14 @@ and writes `trajectory_est.tum`, `trajectory_frames.tum`, `trajectory_orb_raw.tu
 `tracking.csv`, `run.log`, and `run_meta.json`. `trajectory_est.tum` is the optimized
 keyframe trajectory in TartanAir body/NED coordinates and is the only primary comparison
 trajectory.
+
+ATE and RPE status are independent. A sparse keyframe trajectory can therefore produce
+a valid ATE while the requested 1 m RPE interval has no admissible pairs. This is
+reported as `ate_status=ok` and `rpe_*_status=unavailable`; it does not invalidate ATE.
+
+An empty or insufficient primary keyframe trajectory is reported as
+`primary_trajectory_unavailable` with `keyframe_count` and `frame_pose_count`. The
+per-frame trajectory and tracking log remain available for map-aware diagnostics.
 
 ## Evaluate
 
@@ -154,6 +162,16 @@ python "${REPO_ROOT}/experiments/A_baselines/summarize_all_sequences.py" \
   --root "${REPO_ROOT}"
 python "${REPO_ROOT}/experiments/A_baselines/plot_available_trajectories.py" \
   --root "${REPO_ROOT}"
+```
+
+To repair evaluation-only defects in an existing 54-run matrix without rerunning the
+engine, use:
+
+```bash
+python "${REPO_ROOT}/experiments/A_baselines/reevaluate_existing_sequences.py" \
+  "${REPO_ROOT}" \
+  "${REPO_ROOT}/experiments/A_baselines/available_sequences.yaml" \
+  "${A_CONDA_ENV}/bin/python"
 ```
 
 `select_hard_window.py` is the audit utility used to find a common hard interval from

@@ -26,8 +26,8 @@ presentation/A/
    ├─ hard_rgb_overlay.png
    ├─ hard_rgb_imu_overlay.png
    ├─ hard_rgbd_imu_overlay.png
-   ├─ easy_all_sequences.png
-   └─ hard_all_sequences.png
+   ├─ easy_available_trajectories.png
+   └─ hard_available_trajectories.png
 ```
 
 ## Suggested slide allocation
@@ -42,3 +42,5 @@ presentation/A/
 Do not state that fusion always improves accuracy. P000 and P002 produce different
 orderings. Hard full-window ATE is unavailable because map frames are discontinuous;
 the separate common-window result must always be shown with valid-frame coverage.
+Also distinguish "no usable primary keyframe trajectory" from "zero tracking": every
+one of the 54 runs has tracking poses, while only 32 have a continuous primary result.

@@ -4,7 +4,7 @@
 
 - Three official ORB-SLAM3 modes: RGB, RGB+IMU and RGB-D+IMU.
 - TartanAir V2 `OldTownSummer`.
-- Easy P000 primary, easy P002 holdout, hard P001 robustness.
+- Easy and Hard P000/P001/P002, all six physical trajectories in the local package.
 - Three seeds per sequence and mode.
 - Same camera, ORB configuration, IMU parameters, timestamps and trajectory exporter.
 - Headless execution with single-thread math libraries.
@@ -23,6 +23,7 @@ Use `results/A/figures/baseline_summary.png` and
 `results/A/figures/validation_summary.png`.
 
 - Easy P000: RGB+IMU has the lowest conditional ATE but lower coverage.
+- Easy P001: RGB+IMU has ATE in all three seeds, but 1 m RPE pairs are unavailable.
 - Easy P002: both fusion modes outperform RGB.
 - The ordering changes between P000 and P002, so no universal fusion advantage is
   claimed.
@@ -36,6 +37,8 @@ Use `results/A/figures/hard_robustness.png`.
 - RGB-D+IMU has the shortest longest-loss segment.
 - RGB+IMU has the highest loss-event count and P95 latency.
 - Per-map segmentation finds no evaluable continuous RGB+IMU segment.
+- Across all 54 runs, 32 have a continuous primary result, 18 have no usable primary
+  keyframe trajectory, and 4 cross maps; all 54 still contain per-frame tracking data.
 
 Use `results/A/figures/hard_common_summary.png` for conditional accuracy.
 

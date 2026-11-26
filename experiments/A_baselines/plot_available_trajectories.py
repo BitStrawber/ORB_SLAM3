@@ -139,6 +139,43 @@ def plot_map_diagnostic(
     plt.close(figure)
 
 
+def plot_tracking_diagnostic(run_dir: Path, output: Path, title: str) -> None:
+    rows = read_tracking(run_dir / "tracking.csv")
+    timestamps = np.asarray([float(row["timestamp"]) for row in rows])
+    valid = np.asarray([row["valid"] == "1" for row in rows], dtype=float)
+    map_ids = np.asarray([int(row["map_id"]) for row in rows])
+    figure, (coverage_axis, map_axis) = plt.subplots(
+        2, 1, figsize=(8, 4.8), sharex=True
+    )
+    coverage_axis.step(
+        timestamps,
+        valid,
+        where="post",
+        color="#d62728",
+        label="Tracking valid",
+    )
+    coverage_axis.set_ylim(-0.1, 1.1)
+    coverage_axis.set_ylabel("Valid pose")
+    coverage_axis.set_title(title + " (no usable primary trajectory)")
+    coverage_axis.grid(True, alpha=0.3)
+    coverage_axis.legend(loc="best")
+    map_axis.step(
+        timestamps,
+        map_ids,
+        where="post",
+        color="#1f77b4",
+        label="Active map ID",
+    )
+    map_axis.set_xlabel("time [s]")
+    map_axis.set_ylabel("Map ID")
+    map_axis.grid(True, alpha=0.3)
+    map_axis.legend(loc="best")
+    figure.tight_layout()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output, dpi=150)
+    plt.close(figure)
+
+
 def contact_sheet(
     entries: list[dict[str, object]], title: str, output: Path
 ) -> None:
@@ -157,11 +194,47 @@ def contact_sheet(
                 for item in entries
                 if item["sample_id"] == sample_id and item["mode"] == mode
             )
-            axis.imshow(mpimg.imread(entry["figure_path"]))
-            axis.axis("off")
+            if entry["plot_type"] == "primary_optimized_keyframe":
+                axis.imshow(mpimg.imread(entry["figure_path"]))
+                axis.axis("off")
+            else:
+                rows = read_tracking(
+                    Path(entry["run_dir"]) / "tracking.csv"
+                )
+                timestamps = np.asarray(
+                    [float(row["timestamp"]) for row in rows]
+                )
+                valid = np.asarray(
+                    [row["valid"] == "1" for row in rows], dtype=float
+                )
+                axis.fill_between(
+                    timestamps,
+                    0,
+                    valid,
+                    step="post",
+                    alpha=0.25,
+                    color="#d62728",
+                )
+                axis.step(
+                    timestamps,
+                    valid,
+                    where="post",
+                    color="#d62728",
+                )
+                axis.set_ylim(-0.08, 1.12)
+                axis.set_xlabel("time [s]")
+                axis.set_ylabel("valid pose")
+                axis.grid(True, alpha=0.3)
+            short_status = {
+                "ok": "primary trajectory available",
+                "primary_trajectory_unavailable": "no primary trajectory",
+                "invalid_map_discontinuity": "map discontinuity",
+            }.get(str(entry["status"]), str(entry["status"]))
             axis.set_title(
-                f"{sample_id} | {mode} | seed {entry['seed']} | "
-                f"coverage {100 * float(entry['valid_pose_ratio']):.1f}%"
+                f"{sample_id} {mode} seed {entry['seed']}\n"
+                f"coverage {100 * float(entry['valid_pose_ratio']):.1f}% | "
+                f"KF {entry.get('keyframe_count', 'NA')} | {short_status}",
+                fontsize=10,
             )
     figure.suptitle(title)
     figure.tight_layout()
@@ -173,26 +246,54 @@ def contact_sheet(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", required=True, type=Path)
+    parser.add_argument(
+        "--matrix",
+        type=Path,
+        help="Sequence matrix; defaults to experiments/A_baselines/available_sequences.yaml.",
+    )
+    parser.add_argument(
+        "--metrics",
+        type=Path,
+        help="all_sequences_metrics.json; defaults to ROOT/results/A/.",
+    )
+    parser.add_argument(
+        "--output-root",
+        type=Path,
+        help="Trajectory/contact-sheet output root; defaults to ROOT/results/A.",
+    )
     args = parser.parse_args()
     root = args.root.resolve()
+    matrix_path = (
+        args.matrix.resolve()
+        if args.matrix
+        else root / "experiments/A_baselines/available_sequences.yaml"
+    )
     matrix = yaml.safe_load(
-        (root / "experiments/A_baselines/available_sequences.yaml").read_text(
-            encoding="utf-8"
-        )
+        matrix_path.read_text(encoding="utf-8")
+    )
+    metrics_path = (
+        args.metrics.resolve()
+        if args.metrics
+        else root / "results/A/all_sequences_metrics.json"
     )
     metrics = json.loads(
-        (root / "results/A/all_sequences_metrics.json").read_text(
-            encoding="utf-8"
-        )
+        metrics_path.read_text(encoding="utf-8")
     )
-    output_root = root / "results/A/available_sequences/trajectories"
+    result_output_root = (
+        args.output_root.resolve()
+        if args.output_root
+        else root / "results/A"
+    )
+    output_root = result_output_root / "available_sequences/trajectories"
     output_root.mkdir(parents=True, exist_ok=True)
     entries = []
 
     for sequence in matrix["sequences"]:
         run_root = root / sequence["result_root"]
         reference = (
-            root
+            root / sequence["input_root"] / "trajectory_gt.tum"
+            if sequence.get("input_root")
+            else root
             / "results/A/full_sequences/inputs"
             / sequence["id"]
             / "trajectory_gt.tum"
@@ -236,13 +337,21 @@ def main() -> None:
                 shutil.copy2(overlay, output)
                 plot_type = "primary_optimized_keyframe"
             else:
-                plot_map_diagnostic(
-                    run_dir,
-                    reference,
-                    output,
-                    f"{sequence['id']} {mode} seed {seed}",
-                )
-                plot_type = "per_frame_by_map_diagnostic"
+                try:
+                    plot_map_diagnostic(
+                        run_dir,
+                        reference,
+                        output,
+                        f"{sequence['id']} {mode} seed {seed}",
+                    )
+                    plot_type = "per_frame_by_map_diagnostic"
+                except (OSError, ValueError):
+                    plot_tracking_diagnostic(
+                        run_dir,
+                        output,
+                        f"{sequence['id']} {mode} seed {seed}",
+                    )
+                    plot_type = "tracking_status_diagnostic"
             entries.append(
                 {
                     "sample_id": sequence["id"],
@@ -252,12 +361,14 @@ def main() -> None:
                     "seed": seed,
                     "status": selected["status"],
                     "valid_pose_ratio": selected["valid_pose_ratio"],
+                    "keyframe_count": selected.get("keyframe_count"),
                     "plot_type": plot_type,
+                    "run_dir": str(run_dir),
                     "figure_path": str(output),
                 }
             )
 
-    manifest = root / "results/A/available_sequence_trajectory_manifest.csv"
+    manifest = result_output_root / "available_sequence_trajectory_manifest.csv"
     with manifest.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
             handle, fieldnames=list(entries[0]), lineterminator="\n"
@@ -269,7 +380,8 @@ def main() -> None:
         contact_sheet(
             [entry for entry in entries if entry["difficulty"] == difficulty],
             f"Available {difficulty} trajectories: 3 sequences x 3 modes",
-            root / f"results/A/figures/{difficulty}_available_trajectories.png",
+            result_output_root
+            / f"figures/{difficulty}_available_trajectories.png",
         )
     print(manifest)
 

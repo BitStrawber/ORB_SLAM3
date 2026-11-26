@@ -24,10 +24,14 @@ IMU is not or recently initialized
 Reseting active map
 ```
 
-The controlled easy/P000 window has 73.3% RGB+IMU coverage and 8.0 loss events. Two of
-three seeds produce a connected optimized trajectory with ATE 0.120 and 0.126 m; one
-seed has no usable keyframe trajectory. RGB-D+IMU reaches 98% coverage and 0.224 m ATE.
-Monocular inertial scale initialization remains the weakest easy-case component.
+The controlled easy/P000 window has 73.3% RGB+IMU coverage and 8.0 loss events. All
+three seeds produce a connected optimized trajectory and ATE, but one trajectory is too
+sparse for a valid 1 m RPE pair. Older reports incorrectly treated that RPE failure as
+an ATE failure. RGB-D+IMU reaches 98% coverage and 0.224 m ATE. Monocular inertial scale
+initialization remains the weakest easy-case component.
+
+Easy/P001 RGB+IMU has the same evaluation-only issue: all three seeds have a primary
+keyframe trajectory and ATE, while every 1 m RPE query is empty.
 
 ## Hard map continuity and initialization failures
 
