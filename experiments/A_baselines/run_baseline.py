@@ -28,6 +28,9 @@ def materialize_orb_trajectory(
     output: Path, settings: Path, mode: str
 ) -> str:
     raw_path = output / "trajectory_orb_raw.tum"
+    frame_path = output / "trajectory_frames.tum"
+    if (output / "trajectory_est.tum").exists():
+        shutil.copy2(output / "trajectory_est.tum", frame_path)
     if not raw_path.exists() or raw_path.stat().st_size == 0:
         return "per_frame_fallback_empty_official"
     rows = np.loadtxt(raw_path, ndmin=2)
@@ -40,7 +43,7 @@ def materialize_orb_trajectory(
         return "per_frame_body"
     if np.median(rows[:, 0]) > 1e6:
         rows[:, 0] /= 1e9
-    if rows.shape[0] < 3:
+    if rows.shape[0] < 10:
         return "per_frame_fallback_degenerate_official"
     covariance_rank = np.linalg.matrix_rank(
         np.cov(rows[:, 1:4], rowvar=False)
