@@ -1,34 +1,50 @@
-## Research question
+## 研究问题：
 
-How do official ORB-SLAM3 RGB, RGB+IMU and RGB-D+IMU modes differ in trajectory
-accuracy, tracking coverage, loss events, map continuity and processing latency on
-TartanAir V2?
+在 TartanAir V2 上，ORB-SLAM3 的 RGB、RGB+IMU、RGB-D+IMU 三种模式在轨迹精度、
+有效跟踪覆盖率、失跟次数、地图连续性和计算耗时方面有何差异？hard 场景发生地图重置时，
+如何在不拼接不同坐标系的条件下进行可复现评估？
 
-## Input data and experiment configuration
+## 输入数据与实验配置：
 
-- TartanAir V2 `OldTownSummer`
-- Easy P000 primary: frames 200-299, 20.0-29.9 s
-- Easy P002 holdout: frames 200-299, 20.0-29.9 s
-- Hard P001 robustness: frames 100-199, 10.0-19.9 s
-- Seeds 0, 1 and 2 for every sequence and mode
-- Camera: 640x640 pinhole, `fx=fy=320`, `cx=cy=320`, no distortion
-- IMU: 100 Hz, fixed optical-to-NED axis permutation
-- ORB: 1250 features, scale 1.2, 8 levels
-- Single-thread OpenMP/OpenBLAS/MKL
-- RGB Sim(3); inertial modes SE(3); RPE interval 1 m
+- 数据集：TartanAir V2，`OldTownSummer`
+- 主实验：easy `P000`，第 200–299 帧，20.0–29.9 s
+- Holdout：easy `P002`，第 200–299 帧，20.0–29.9 s
+- Hard 鲁棒性实验：hard `P001`，第 100–199 帧，10.0–19.9 s
+- 模式：`rgb`、`rgb_imu`、`rgbd_imu`
+- 随机种子：`0`、`1`、`2`
+- 相机：640×640 pinhole，`fx=fy=320`，`cx=cy=320`，无畸变
+- IMU：100 Hz，固定 optical-to-NED `Tbc`
+- ORB：1250 features，scale 1.2，8 levels
+- OpenMP/OpenBLAS/MKL：固定单线程
+- 对齐：RGB 使用 Sim(3)，融合模式使用 SE(3)
+- RPE：1 m interval；hard 公共窗口补充实验使用 5-frame interval
+- 完整窗口 ATE/RPE 仅在有效位姿属于单一 map 时计算
 
-## Run command
+详细配置见：
+
+```text
+experiments/A_baselines/matrix.yaml
+configs/A/tartanair.yaml
+```
+
+## 运行命令：
 
 ```bash
 export A_ROOT=/path/to/ORB_SLAM3_A
 export REPO_ROOT=/path/to/ORB_SLAM3
+
 source "${REPO_ROOT}/scripts/A/activate_a_orb.sh"
 bash "${REPO_ROOT}/scripts/A/build_pangolin.sh"
 bash "${REPO_ROOT}/experiments/A_baselines/build_a.sh"
 bash "${REPO_ROOT}/experiments/A_baselines/reproduce_baseline_v2.sh"
 ```
 
-## Outputs
+该命令运行 easy/P000、easy/P002、hard/P001 的三模式 × 三 seed 矩阵，并重新生成
+hard 公共窗口、逐 map 分段、CSV/JSON 聚合结果和全部图。
+
+## 输出路径（结果、图、日志）：
+
+结果：
 
 ```text
 results/A/baseline_metrics.csv
@@ -39,25 +55,62 @@ results/A/hard_metrics.csv
 results/A/hard_aggregate.csv
 results/A/hard_common_metrics.csv
 results/A/hard_common_aggregate.csv
-results/A/figures/
+results/A/hard_map_segments.csv
+results/A/hard_map_segment_summary.csv
 ```
 
-## Main findings
+每个 run 的原始结果、轨迹、tracking 日志和 `metrics.json`：
 
-- Easy/P000: RGB+IMU has the lowest conditional ATE but lower coverage.
-- Easy/P002: both fusion modes outperform RGB.
-- Hard/P001 coverage is 50.3% for RGB, 28.0% for RGB+IMU and 60.0% for RGB-D+IMU.
-- Hard full-window ATE/RPE is N/A because valid poses span discontinuous maps.
-- Per-map segment evaluation finds 4 evaluable RGB segments, no RGB+IMU segment and
-  3 RGB-D+IMU segments.
-- Hard conditional accuracy uses one preselected common map-0 interval, 12.9-14.9 s.
-- RGB has zero coverage in one hard seed and that failure remains in the outputs.
+```text
+results/A/baseline_final/easy/P000_window_200_299/
+results/A/validation/P002/easy/
+results/A/baseline_final/hard/P001_window_start100/
+```
 
-## Interface changes
+图和汇报材料：
 
-- Adds a headless TartanAir runner with explicit map IDs and tracking validity.
-- Adds a shared manifest/IMU/tracking/trajectory result interface.
-- Adds full easy, holdout and hard experiment matrices with three seeds.
-- Adds map-aware evaluation that refuses to concatenate incompatible maps.
-- Adds hard conditional-window validation and per-mode trajectory figures.
-- Adds aggregation for ATE, RPE, coverage, loss, map switches and latency.
+```text
+results/A/figures/
+presentation/A/figures/
+```
+
+运行日志：
+
+```text
+results/A/baseline_final/easy/P000_window_200_299/*/run.log
+results/A/validation/P002/easy/*/run.log
+results/A/baseline_final/hard/P001_window_start100/*/run.log
+```
+
+完整报告：
+
+```text
+experiments/A_baselines/baseline_report.md
+experiments/A_baselines/failure_cases.md
+presentation/A/docs/
+```
+
+## 主要发现（含失败结果）：
+
+- easy/P000：RGB+IMU 条件 ATE 最低，但覆盖率只有 73.3%，且 3 个 seed 中只有
+  2 个生成可用的优化关键帧轨迹。
+- easy/P002：RGB+IMU 和 RGB-D+IMU 均优于 RGB，说明 easy 场景的融合收益存在场景依赖。
+- hard/P001 全窗口覆盖率：RGB 50.3%、RGB+IMU 28.0%、RGB-D+IMU 60.0%。
+- hard/P001 全窗口跨越不连续地图坐标系，因此 ATE/RPE 标记为 `N/A`，不拼接不同 map。
+- hard/P001 预先固定的 12.9–14.9 s 单地图公共窗口中，RGB 有 1 个 seed 覆盖率为 0；
+  该失败结果被保留。RGB 条件 ATE 为 0.281 m（2/3 seed），RGB+IMU 为 1.415 m，
+  RGB-D+IMU 为 1.262 m。
+- 逐 map 分段评估得到 RGB 4 个、RGB+IMU 0 个、RGB-D+IMU 3 个可评估连续片段。
+- 结果显示融合不保证在每条序列上优于 RGB；hard 场景主要暴露 IMU 初始化、跟踪丢失
+  和地图连续性失败。
+
+## 与其他分支的接口变化：
+
+- 提供统一的 `manifest.csv`、`imu.csv`、`tracking.csv` 和 TUM 轨迹接口。
+- `tracking.csv` 增加 `map_id`、`valid`、`state`、`quality_rgb`、`quality_depth`、
+  `source` 和 `latency_ms`，供 B/C/D/E 复用。
+- 统一主轨迹为 TartanAir body/NED 坐标下的优化关键帧轨迹。
+- 增加 map-aware 评估：固定窗口跨地图时拒绝计算连续 ATE/RPE。
+- hard 全窗口提供鲁棒性指标，公共单地图窗口提供条件精度，逐 map 分段单独对齐。
+- B/C 可直接替换 `rgb_path` 或 `depth_path` 后复用 `prepare_sequence.py` 和
+  `run_baseline.py`；时间戳、帧 ID 和顺序必须保持不变。
