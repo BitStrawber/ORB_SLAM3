@@ -65,6 +65,9 @@ def main() -> None:
                         "ate_rmse_m": metrics.get("ate_rmse"),
                         "rpe_translation_rmse_m": metrics.get("rpe_translation_rmse"),
                         "rpe_rotation_rmse_deg": metrics.get("rpe_rotation_deg_rmse"),
+                        "orientation_ape_rmse_deg": metrics.get(
+                            "orientation_ape_rmse_deg"
+                        ),
                         "valid_pose_ratio": metrics.get("valid_pose_ratio"),
                         "lost_events": metrics.get("lost_events"),
                         "mean_latency_ms": metrics.get("mean_latency_ms"),
@@ -107,6 +110,7 @@ def main() -> None:
                 "ate_rmse_m",
                 "rpe_translation_rmse_m",
                 "rpe_rotation_rmse_deg",
+                "orientation_ape_rmse_deg",
                 "valid_pose_ratio",
                 "lost_events",
                 "mean_latency_ms",

@@ -12,6 +12,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import numpy as np
+
 
 def git_head(repo: Path) -> str:
     try:
@@ -20,6 +22,31 @@ def git_head(repo: Path) -> str:
         ).strip()
     except (OSError, subprocess.CalledProcessError):
         return "unknown"
+
+
+def materialize_orb_trajectory(
+    output: Path, settings: Path, mode: str
+) -> None:
+    raw_path = output / "trajectory_orb_raw.tum"
+    if not raw_path.exists() or raw_path.stat().st_size == 0:
+        return
+    rows = np.loadtxt(raw_path, ndmin=2)
+    if rows.size == 0:
+        return
+    # The official EuRoC save path is the authoritative optimized trajectory
+    # for inertial modes. For monocular RGB, keep the per-frame trajectory
+    # already transformed to the TartanAir body frame by run_tartanair.
+    if mode == "rgb":
+        return
+    if np.median(rows[:, 0]) > 1e6:
+        rows[:, 0] /= 1e9
+
+    np.savetxt(
+        output / "trajectory_est.tum",
+        rows,
+        fmt="%.17g",
+        delimiter=" ",
+    )
 
 
 def main() -> int:
@@ -94,6 +121,7 @@ def main() -> int:
     meta["return_code"] = return_code
     meta["finished_utc"] = datetime.now(timezone.utc).isoformat()
     meta["status"] = "ok" if return_code == 0 else "failed"
+    materialize_orb_trajectory(output, args.settings.resolve(), args.mode)
     (output / "run_meta.json").write_text(
         json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )

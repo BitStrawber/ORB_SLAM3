@@ -135,6 +135,10 @@ def main() -> int:
         ape.process_data((reference, estimated))
         ape_result = ape.get_result()
 
+        orientation_ape = metrics.APE(metrics.PoseRelation.rotation_angle_deg)
+        orientation_ape.process_data((reference, estimated))
+        orientation_ape_result = orientation_ape.get_result()
+
         rpe_translation = metrics.RPE(
             metrics.PoseRelation.translation_part,
             args.rpe_delta_frames,
@@ -159,6 +163,9 @@ def main() -> int:
                 "ate_mean": float(ape_result.stats["mean"]),
                 "ate_median": float(ape_result.stats["median"]),
                 "ate_std": float(ape_result.stats["std"]),
+                "orientation_ape_rmse_deg": float(
+                    orientation_ape_result.stats["rmse"]
+                ),
                 "rpe_translation_rmse": float(translation_result.stats["rmse"]),
                 "rpe_rotation_deg_rmse": float(rotation_result.stats["rmse"]),
             }

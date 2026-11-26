@@ -22,6 +22,7 @@
 #include <vector>
 
 #include <opencv2/core/core.hpp>
+#include <opencv2/core/persistence.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
@@ -180,6 +181,27 @@ ORB_SLAM3::System::eSensor parse_mode(const std::string& mode) {
     throw std::runtime_error("Unknown mode: " + mode);
 }
 
+Sophus::SE3f load_camera_to_body(const std::string& settings_path) {
+    cv::FileStorage settings(settings_path, cv::FileStorage::READ);
+    if (!settings.isOpened()) {
+        throw std::runtime_error("Cannot open settings: " + settings_path);
+    }
+    cv::Mat cv_tbc;
+    settings["IMU.T_b_c1"] >> cv_tbc;
+    if (cv_tbc.rows != 4 || cv_tbc.cols != 4 || cv_tbc.type() != CV_32F) {
+        throw std::runtime_error("IMU.T_b_c1 must be a 4x4 float matrix");
+    }
+    Eigen::Matrix3f rotation;
+    Eigen::Vector3f translation;
+    for (int row = 0; row < 3; ++row) {
+        for (int column = 0; column < 3; ++column) {
+            rotation(row, column) = cv_tbc.at<float>(row, column);
+        }
+        translation(row) = cv_tbc.at<float>(row, 3);
+    }
+    return Sophus::SE3f(rotation, translation);
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -199,6 +221,7 @@ int main(int argc, char** argv) {
         const std::string output = argv[6];
         const int seed = std::stoi(argv[7]);
         const auto sensor = parse_mode(mode);
+        const Sophus::SE3f camera_to_body = load_camera_to_body(settings);
 
         std::srand(seed);
         cv::setRNGSeed(seed);
@@ -211,6 +234,9 @@ int main(int argc, char** argv) {
 
         std::ofstream trajectory(join_path(output, "trajectory_est.tum"));
         trajectory << std::setprecision(17);
+        std::ofstream camera_trajectory(
+            join_path(output, "trajectory_camera.tum"));
+        camera_trajectory << std::setprecision(17);
 
         std::size_t imu_cursor = 0;
         std::size_t valid_poses = 0;
@@ -261,8 +287,23 @@ int main(int argc, char** argv) {
                 finite && !pose.matrix().isZero(1e-8) && state == 2;
             if (valid) {
                 const Sophus::SE3f camera_to_world = pose.inverse();
-                const Eigen::Vector3f translation = camera_to_world.translation();
-                const Eigen::Quaternionf rotation(camera_to_world.rotationMatrix());
+                const Sophus::SE3f body_to_world =
+                    camera_to_world * camera_to_body.inverse();
+                const Eigen::Vector3f camera_translation =
+                    camera_to_world.translation();
+                const Eigen::Quaternionf camera_rotation(
+                    camera_to_world.rotationMatrix());
+                const Eigen::Vector3f translation = body_to_world.translation();
+                const Eigen::Quaternionf rotation(body_to_world.rotationMatrix());
+                camera_trajectory
+                    << frame.timestamp << ' '
+                    << camera_translation.x() << ' '
+                    << camera_translation.y() << ' '
+                    << camera_translation.z() << ' '
+                    << camera_rotation.x() << ' '
+                    << camera_rotation.y() << ' '
+                    << camera_rotation.z() << ' '
+                    << camera_rotation.w() << '\n';
                 trajectory
                     << frame.timestamp << ' '
                     << translation.x() << ' ' << translation.y() << ' '
@@ -298,7 +339,10 @@ int main(int argc, char** argv) {
 
         tracking.close();
         trajectory.close();
+        camera_trajectory.close();
         slam.Shutdown();
+        slam.SaveTrajectoryEuRoC(
+            join_path(output, "trajectory_orb_raw.tum"));
         slam.SaveKeyFrameTrajectoryTUM(
             join_path(output, "keyframe_trajectory.tum"));
 
