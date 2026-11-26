@@ -683,6 +683,12 @@ void System::SaveTrajectoryEuRoC(const string &filename)
         }
     }
 
+    if(numMaxKFs == 0)
+    {
+        ofstream empty(filename.c_str());
+        return;
+    }
+
     vector<KeyFrame*> vpKFs = pBiggerMap->GetAllKeyFrames();
     sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
 
